@@ -1,0 +1,2550 @@
+<title>Time Travel Bureau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Shippori+Mincho:wght@500;700;800&family=Fraunces:opsz,wght@9..144,500..900&family=Anton&family=Abril+Fatface&family=Courier+Prime:wght@400;700&family=Russo+One&display=swap">
+<style>
+:root {
+  --ground: #EEF2F1;
+  --surface: #FFFFFF;
+  --surface-2: #E3EAE9;
+  --ink: #14212B;
+  --muted: #52606B;
+  --line: #C9D3D4;
+  --signal: #D0421A;
+  --on-signal: #FFFFFF;
+  --signal-tint: #FBE3DA;
+  --signal-text: #B93A16;
+  --teal: #0B6E75;
+  --on-teal: #FFFFFF;
+  --teal-tint: #D6ECEE;
+  --teal-text: #0B6E75;
+  --gold: #F2B632;
+  --on-gold: #14212B;
+  --gold-tint: #FBEFCB;
+  --good: #1F7A45;
+  --good-tint: #D8EFE0;
+  --bad: #B3261E;
+  --bad-tint: #F8DCD9;
+  --board: #16232D;
+  --board-ink: #F4C95D;
+  --board-dim: #6E7F8A;
+  --shadow: 0 1px 0 rgba(20,33,43,.06), 0 8px 24px -12px rgba(20,33,43,.28);
+  --display: 'Bricolage Grotesque', 'Avenir Next', 'Trebuchet MS', system-ui, sans-serif;
+  --body: 'Atkinson Hyperlegible', 'Avenir Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0E1820;
+    --surface: #16232D;
+    --surface-2: #1E2F3B;
+    --ink: #EAF0F0;
+    --muted: #A2B3BC;
+    --line: #2B3E4A;
+    --signal: #FF7A52;
+    --on-signal: #0E1820;
+    --signal-tint: #3A231C;
+    --signal-text: #FF9A78;
+    --teal: #4FC1C9;
+    --on-teal: #0E1820;
+    --teal-tint: #143038;
+    --teal-text: #6FD3DA;
+    --gold-tint: #3A3115;
+    --good: #58C98A;
+    --good-tint: #163524;
+    --bad: #FF8F86;
+    --bad-tint: #3E1E1B;
+    --board: #0A1218;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0E1820;
+  --surface: #16232D;
+  --surface-2: #1E2F3B;
+  --ink: #EAF0F0;
+  --muted: #A2B3BC;
+  --line: #2B3E4A;
+  --signal: #FF7A52;
+  --on-signal: #0E1820;
+  --signal-tint: #3A231C;
+  --signal-text: #FF9A78;
+  --teal: #4FC1C9;
+  --on-teal: #0E1820;
+  --teal-tint: #143038;
+  --teal-text: #6FD3DA;
+  --gold-tint: #3A3115;
+  --good: #58C98A;
+  --good-tint: #163524;
+  --bad: #FF8F86;
+  --bad-tint: #3E1E1B;
+  --board: #0A1218;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -12px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 0 48px;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1080px; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.08; letter-spacing: -0.01em; }
+p { margin: 0 0 .8em; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
+.mono { font-family: var(--mono); }
+.eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ------------------------------------------------ flight bar */
+.flightbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  margin-inline: -16px; padding: 8px 16px;
+  background: var(--board); color: #F4F1E6;
+  display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.brand { font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .14em; color: var(--board-ink); white-space: nowrap; }
+.pills { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; padding-block: 2px; }
+@media (max-width: 560px) { .brand { display: none; } .flightbar { gap: 8px; } .clock button { padding: 0 10px; } .clock-time { min-width: 54px; font-size: 18px; } }
+.pills::-webkit-scrollbar { display: none; }
+.pill {
+  flex: none; min-height: 40px; min-width: 40px; padding: 0 12px;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,.22);
+  background: transparent; color: #F4F1E6;
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.pill small { font-family: var(--body); font-size: 13px; display: none; }
+@media (min-width: 900px) { .pill small { display: inline; } }
+.pill:hover { border-color: var(--board-ink); }
+.pill[aria-current="true"] { background: var(--board-ink); color: #16232D; border-color: var(--board-ink); font-weight: 600; }
+.clock { display: flex; align-items: center; gap: 8px; flex: none; }
+.clock-now { font-size: 13px; color: #C9D3D4; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: none; }
+@media (min-width: 760px) { .clock-now { display: inline; } }
+.clock-time { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--board-ink); font-variant-numeric: tabular-nums; min-width: 62px; text-align: right; }
+.clock button { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.28); background: transparent; color: #F4F1E6; font-size: 14px; font-weight: 700; }
+.clock button.go { background: var(--signal); color: var(--on-signal); border-color: var(--signal); }
+
+/* ------------------------------------------------ hero */
+.hero { padding-block: 32px 20px; display: grid; gap: 28px; grid-template-columns: 1fr; align-items: center; }
+@media (min-width: 980px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(420px, 1fr); gap: 44px; padding-block: 44px 24px; } }
+.hero h1 { font-size: clamp(44px, 8vw, 92px); font-weight: 800; letter-spacing: -0.03em; line-height: .96; }
+.hero h1 em { font-style: normal; color: var(--signal); }
+.hero .lede { font-size: clamp(18px, 2.2vw, 22px); color: var(--muted); max-width: 34ch; margin-top: 18px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.btn {
+  min-height: 48px; padding: 0 20px; border-radius: 10px; border: 2px solid var(--ink);
+  background: transparent; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; color: var(--ink);
+}
+.btn.primary { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.ticker { margin-top: 8px; background: var(--board); border-radius: 12px; padding: 14px 16px 16px; display: block; max-width: 100%; overflow: hidden; }
+.ticker-label { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--board-dim); margin-bottom: 8px; display: block; }
+.flaps { display: flex; gap: 3px; }
+.flap {
+  width: min(34px, calc((100vw - 32px - 32px - 21px * 3) / 22)); height: clamp(22px, 5vw, 50px);
+  background: #22323D; border-radius: 3px; color: var(--board-ink);
+  font-family: var(--mono); font-weight: 600; font-size: clamp(10px, 2.9vw, 28px);
+  display: grid; place-items: center; position: relative; overflow: hidden;
+}
+.flap::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.55); }
+
+/* boarding pass */
+.pass { display: grid; grid-template-columns: 1fr 150px; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); position: relative; }
+@media (max-width: 560px) { .pass { grid-template-columns: 1fr; } }
+.pass-main { padding: 0 0 16px; min-width: 0; }
+.pass-top { background: var(--signal); color: var(--on-signal); border-radius: 18px 0 0 0; padding: 12px 20px; display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; font-weight: 600; }
+@media (max-width: 560px) { .pass-top { border-radius: 18px 18px 0 0; } }
+.pass-fields { padding: 16px 20px 6px; display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+.f { display: block; min-width: 0; }
+.f span { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.f input { width: 100%; min-height: 44px; border: 0; border-bottom: 2px dashed var(--line); background: transparent; padding: 4px 2px; font-family: var(--mono); font-size: 17px; font-weight: 500; color: var(--ink); }
+.f input::placeholder { color: var(--muted); opacity: .6; }
+.f input:focus { outline: none; border-bottom: 2px solid var(--signal); }
+.f-name, .f-why { grid-column: 1 / -1; }
+.pass-meta { padding: 8px 20px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--muted); }
+.pass-stub {
+  border-left: 2px dashed var(--line); padding: 16px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-width: 0;
+}
+@media (max-width: 560px) { .pass-stub { border-left: 0; border-top: 2px dashed var(--line); flex-direction: row; align-items: center; } }
+.pass-stub .to { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--muted); }
+.pass-stub .place { font-family: var(--display); font-weight: 800; font-size: 17px; line-height: 1.05; overflow-wrap: anywhere; }
+.pass-stub .when { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--signal-text); }
+.barcode { height: 44px; min-width: 96px; flex: 1; max-width: 120px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 12px); border-radius: 2px; opacity: .85; }
+.pass::before, .pass::after { content: ''; position: absolute; width: 22px; height: 22px; background: var(--ground); border-radius: 50%; left: calc(100% - 150px - 11px); }
+.pass::before { top: -11px; } .pass::after { bottom: -11px; }
+@media (max-width: 560px) { .pass::before, .pass::after { display: none; } }
+.ghost-note { font-size: 13px; color: var(--muted); margin: 10px 4px 0; font-family: var(--mono); }
+
+/* ------------------------------------------------ flight plan */
+.plan { margin-block: 12px 8px; }
+.board { background: var(--board); border-radius: 14px; padding: 8px 8px; }
+.board-row {
+  width: 100%; display: grid; grid-template-columns: 96px 76px 1fr; gap: 12px; align-items: center;
+  padding: 12px 14px; border-radius: 8px; border: 0; background: transparent; text-align: left; color: #F4F1E6;
+  font-size: 16px; min-height: 52px;
+}
+.board-row + .board-row { border-top: 1px solid rgba(255,255,255,.07); }
+.board-row:hover { background: rgba(255,255,255,.05); }
+.board-row .t { font-family: var(--mono); color: var(--board-ink); font-weight: 600; font-size: 15px; }
+.board-row .g { font-family: var(--mono); color: var(--board-dim); font-size: 13px; letter-spacing: .1em; }
+.board-row .n b { font-weight: 700; }
+.board-row .n span { color: #B7C4CB; display: block; font-size: 14.5px; }
+.board-row[aria-current="true"] { background: rgba(244,201,93,.14); }
+@media (max-width: 620px) { .board-row { grid-template-columns: 74px 1fr; } .board-row .g { display: none; } }
+
+/* ------------------------------------------------ gates */
+.gate { margin-top: 64px; scroll-margin-top: 76px; }
+.gate-head { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: end; margin-bottom: 22px; }
+.gate-code { background: var(--board); color: var(--board-ink); border-radius: 12px; padding: 8px 16px 10px; text-align: center; min-width: 78px; }
+.gate-code span { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .2em; color: var(--board-dim); }
+.gate-code b { font-family: var(--mono); font-size: 40px; font-weight: 600; line-height: 1; }
+.gate h2 { font-size: clamp(30px, 5vw, 50px); font-weight: 800; letter-spacing: -0.02em; }
+.gate .when { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; display: block; }
+.brief { font-size: 19px; max-width: 62ch; }
+.grid2 { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+.grid2 > * { min-width: 0; }
+@media (min-width: 820px) { .grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.grid3 { display: grid; align-items: start; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .grid3 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .grid3 { grid-template-columns: repeat(3, 1fr); } }
+.panel { background: var(--surface); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+.panel h3 { font-size: 22px; margin-bottom: 10px; }
+.tint-gold { background: var(--gold-tint); box-shadow: none; }
+.tint-teal { background: var(--teal-tint); box-shadow: none; }
+.tint-signal { background: var(--signal-tint); box-shadow: none; }
+.plain-list { margin: 0; padding-left: 1.15em; }
+.plain-list li { margin-bottom: .45em; }
+
+.handout { display: flex; gap: 14px; align-items: flex-start; margin-top: 22px; padding: 16px 18px; border: 2px dashed var(--ink); border-radius: 12px; background: var(--surface); }
+.handout svg { flex: none; width: 26px; height: 26px; margin-top: 2px; stroke: var(--signal-text); }
+.handout b { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; display: block; color: var(--signal-text); margin-bottom: 2px; }
+.handout p { margin: 0; }
+
+/* chips */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  min-height: 48px; padding: 0 18px; border-radius: 999px; border: 2px solid var(--line); background: var(--surface);
+  font-weight: 700; font-size: 16px; color: var(--ink);
+}
+.chip:hover { border-color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.readout { margin-top: 18px; padding: 18px 20px; border-radius: 14px; background: var(--surface-2); min-height: 92px; }
+.readout .big { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.15; margin-bottom: 6px; display: block; }
+.rule { margin-top: 18px; padding: 16px 20px; border-radius: 12px; background: var(--gold); color: var(--on-gold); font-weight: 700; font-size: 18px; }
+.rule span { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; display: block; margin-bottom: 2px; font-weight: 600; }
+
+/* ladder */
+.ladder { display: grid; gap: 10px; }
+.rung { display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: center; background: var(--surface); border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow); }
+.rung .lvl { font-family: var(--mono); font-weight: 600; font-size: 12px; text-align: center; padding: 6px 0; border-radius: 8px; background: var(--surface-2); color: var(--muted); letter-spacing: .06em; }
+.rung.hi .lvl { background: var(--teal); color: var(--on-teal); }
+.rung q { font-family: var(--display); font-weight: 700; font-size: 20px; quotes: none; display: block; line-height: 1.2; }
+.rung small { color: var(--muted); font-size: 14.5px; display: block; margin-top: 2px; }
+.rung:nth-child(1) { margin-left: 0; } .rung:nth-child(2) { margin-left: 10px; } .rung:nth-child(3) { margin-left: 20px; } .rung:nth-child(4) { margin-left: 30px; }
+@media (max-width: 560px) { .rung:nth-child(n) { margin-left: 0; } .rung { grid-template-columns: 1fr; gap: 6px; } .rung .lvl { justify-self: start; padding: 4px 10px; } }
+
+/* forge */
+.tools { display: grid; gap: 10px; grid-template-columns: 1fr; margin-bottom: 16px; }
+@media (min-width: 700px) { .tools { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .tools { grid-template-columns: repeat(4, 1fr); } }
+.tool { text-align: left; padding: 14px 16px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); min-height: 96px; }
+.tool b { font-family: var(--display); font-size: 19px; line-height: 1.15; display: block; margin-bottom: 4px; }
+.tool span { font-size: 14.5px; color: var(--muted); display: block; }
+.tool:hover { border-color: var(--ink); }
+.tool[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-tint); }
+.starters { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.starter { text-align: left; padding: 12px 16px; border-radius: 10px; border: 2px dashed var(--line); background: var(--surface); min-height: 48px; font-size: 17px; }
+.starter:hover { border-color: var(--signal); }
+.starter .bl { background: var(--gold-tint); padding: 0 6px; border-radius: 4px; font-family: var(--mono); font-size: 15px; }
+textarea.draft { width: 100%; min-height: 96px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); padding: 14px 16px; font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.25; resize: vertical; }
+textarea.draft:focus { outline: none; border-color: var(--teal); }
+.checks { display: grid; gap: 8px; margin-top: 14px; }
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--surface); cursor: pointer; min-height: 48px; }
+.check input { width: 24px; height: 24px; margin: 1px 0 0; accent-color: var(--teal); flex: none; }
+.meter { margin-top: 14px; display: flex; align-items: center; gap: 14px; }
+.meter-bar { flex: 1; height: 14px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.meter-fill { height: 100%; width: 0; background: var(--signal); border-radius: 99px; transition: width .3s ease, background .3s; }
+.meter-label { font-family: var(--mono); font-weight: 600; font-size: 14px; min-width: 150px; text-align: right; }
+
+/* sorter */
+.sorter { min-height: 300px; }
+.card-src { background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; padding: 24px; font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3.4vw, 30px); line-height: 1.15; min-height: 130px; display: flex; align-items: center; }
+.sort-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 10px; letter-spacing: .06em; }
+.sort-btns { display: grid; gap: 10px; grid-template-columns: 1fr; margin-top: 14px; }
+@media (min-width: 620px) { .sort-btns { grid-template-columns: repeat(3, 1fr); } }
+.sort-btns .btn { justify-content: center; }
+.fb { margin-top: 14px; padding: 14px 18px; border-radius: 12px; font-size: 17px; }
+.fb.good { background: var(--good-tint); }
+.fb.meh { background: var(--gold-tint); }
+.fb b { display: block; font-family: var(--display); font-size: 20px; margin-bottom: 2px; }
+
+/* detective */
+.q3 { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .q3 { grid-template-columns: repeat(3, 1fr); } }
+.q3 div { background: var(--ink); color: var(--ground); border-radius: 14px; padding: 18px; }
+.q3 b { font-family: var(--display); font-size: 26px; display: block; margin-bottom: 4px; }
+.q3 span { font-size: 16px; opacity: .92; }
+.links { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .links { grid-template-columns: repeat(2, 1fr); } }
+.links a { display: block; padding: 12px 16px; border-radius: 12px; background: var(--surface); text-decoration: none; color: var(--ink); border: 2px solid var(--line); min-height: 60px; }
+.links a b { display: block; font-family: var(--display); font-size: 18px; color: var(--teal-text); }
+.links a span { font-size: 14.5px; color: var(--muted); }
+.links a:hover { border-color: var(--teal); }
+.tip { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.tip:last-child { border-bottom: 0; }
+.tip code { font-family: var(--mono); font-size: 14px; background: var(--gold-tint); padding: 2px 8px; border-radius: 6px; align-self: flex-start; white-space: nowrap; }
+@media (max-width: 560px) { .tip { flex-direction: column; gap: 4px; } }
+
+/* departures */
+.deps { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 20px; }
+@media (min-width: 700px) { .deps { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .deps { grid-template-columns: repeat(3, 1fr); } }
+.dep { position: relative; text-align: left; display: flex; flex-direction: column; padding: 0; overflow: hidden; min-height: 230px; width: 100%;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.dep:hover { border-color: var(--ink); transform: translateY(-2px); }
+.dep-top { display: flex; justify-content: space-between; gap: 8px; padding: 8px 14px; background: var(--board); color: var(--board-ink); font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; }
+.dep-top .cont { color: #B7C4CB; }
+.dep-top .brd { display: none; color: var(--gold); font-weight: 600; }
+.dep-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; flex: 1; }
+.dep .pl { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 1.05; display: block; }
+.dep .yr { font-family: var(--mono); font-weight: 600; font-size: 15px; color: var(--signal-text); display: block; }
+.dep .hk { font-size: 16px; display: block; }
+.dep .bq { margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 14.5px; color: var(--muted); display: block; }
+.dep .bq b { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-text); font-weight: 500; }
+.dep .course { display: none; margin-top: 6px; padding: 4px 8px; border-radius: 6px; background: var(--gold-tint); font-family: var(--mono); font-size: 12px; }
+body.teacher .dep .course { display: block; }
+.dep[aria-pressed="true"] { border-color: var(--signal); background: var(--signal-tint); }
+.dep[aria-pressed="true"] .cont { display: none; }
+.dep[aria-pressed="true"] .brd { display: inline; }
+.dep.wild { border-style: dashed; box-shadow: none; background: transparent; }
+.dep.wild[aria-pressed="true"] { background: var(--signal-tint); }
+.dep-status { min-height: 28px; margin: 14px 2px 0; font-weight: 700; font-size: 17px; }
+.wildform { margin-top: 14px; display: grid; gap: 14px; grid-template-columns: 1fr; padding: 16px 18px; border: 2px dashed var(--ink); border-radius: 14px; background: var(--surface); }
+@media (min-width: 600px) { .wildform { grid-template-columns: 2fr 1fr; } }
+.wildform[hidden] { display: none; }
+.chip.sm { min-height: 42px; padding: 0 14px; font-size: 15px; }
+.ph { background: var(--gold-tint); padding: 0 5px; border-radius: 4px; font-weight: 700; }
+.ph.unset { background: transparent; color: var(--muted); font-weight: 400; border-bottom: 2px dotted var(--muted); border-radius: 0; }
+code.ph, .tip code.ph { font-family: var(--mono); }
+.tip code.ph { white-space: normal; overflow-wrap: anywhere; flex: 0 1 46%; }
+@media (max-width: 560px) { .tip code.ph { flex: none; } }
+#availGrid[hidden], #alsoBox[hidden] { display: none; }
+.ideas { margin: 4px 0 16px; }
+.ideas[hidden] { display: none; }
+.ideas p { margin: 0 0 8px; font-size: 15.5px; color: var(--muted); }
+
+/* question-relative sources */
+.rules2 { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .rules2 { grid-template-columns: 1fr 1fr; } }
+.rules2 > div { border-radius: 14px; padding: 16px 18px; }
+.rules2 h4, .avail h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.rules2 p { margin: 0; font-size: 17px; }
+.ex-grid { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 14px; }
+@media (min-width: 760px) { .ex-grid { grid-template-columns: 1fr 1fr; } }
+.ex { background: var(--surface-2); border-radius: 14px; padding: 14px 16px; }
+.ex-src { font-family: var(--display); font-weight: 700; font-size: 19px; line-height: 1.2; margin: 0 0 8px; }
+.ex-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 16px; }
+.tag { flex: none; font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .06em; padding: 5px 10px; border-radius: 999px; }
+.tag.p { background: var(--teal-tint); color: var(--teal-text); }
+.tag.s { background: var(--signal-tint); color: var(--signal-text); }
+.q-block { margin-top: 12px; padding: 14px 16px; border-radius: 12px; background: var(--surface-2); }
+.q-block .qq { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.2; margin-bottom: 10px; }
+.q-block .qq small { display: block; margin-bottom: 4px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--teal-text); font-weight: 500; }
+.q-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.q-btns .btn { justify-content: center; min-height: 46px; background: var(--surface); }
+.q-btns .btn.right { background: var(--good-tint); border-color: var(--good); }
+.q-btns .btn.wrong { background: var(--bad-tint); border-color: var(--bad); }
+.q-why { margin-top: 10px; font-size: 16.5px; }
+.avail { border-radius: 14px; padding: 14px 18px; }
+.avail.yes { background: var(--good-tint); }
+.avail.hard { background: var(--gold-tint); }
+.avail ul { margin: 0; padding-left: 1.1em; }
+.avail li { margin-bottom: .4em; font-size: 16.5px; }
+.avail-note { color: var(--muted); font-size: 15.5px; margin: 0 0 12px; }
+.also { margin: 14px 0 0; font-size: 15px; color: var(--muted); }
+.also a { color: var(--teal-text); margin-right: 10px; white-space: nowrap; }
+.qecho { font-family: var(--display); font-weight: 700; font-size: 20px; }
+
+/* step-by-step flow */
+.flightbar { flex-wrap: wrap; }
+.tripbar { flex: 0 0 100%; order: 5; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 5px 0 1px; border-top: 1px solid rgba(255,255,255,.1); font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: #B7C4CB; }
+.tripbar[hidden] { display: none; }
+.tripbar b { color: var(--board-ink); font-size: 14px; letter-spacing: .06em; }
+.tripbar #tbWhen { color: var(--board-ink); }
+.tripbar .away { margin-left: auto; }
+@media (max-width: 560px) { .tripbar .away { display: none; } }
+.gate { margin-top: 36px; scroll-margin-top: 0; }
+.gate[hidden], #screen0[hidden] { display: none; }
+.gate.enter { animation: gateIn .4s ease both; }
+@keyframes gateIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.gatenav { margin-top: 44px; padding-top: 22px; border-top: 2px dashed var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.gatenav .navhint { flex: 1 1 100%; order: 3; margin: 0; font-weight: 700; color: var(--signal-text); min-height: 1.3em; }
+.btn[aria-disabled="true"] { opacity: .45; }
+.pill { position: relative; }
+.pill:disabled, .board-row:disabled { opacity: .35; cursor: not-allowed; }
+.pill.pace::after { content: ''; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 2px var(--board); }
+.board-row.pace .t::after { content: ' ●'; color: var(--signal); }
+.hint-line { margin: 14px 0 0; color: var(--muted); font-family: var(--mono); font-size: 13px; letter-spacing: .06em; }
+.hero .plan { margin: 0; min-width: 0; }
+.tpanel code, .tnote code { font-family: var(--mono); font-size: 14px; }
+
+/* landing postcard */
+.postcard { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: 20px; background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+@media (min-width: 820px) { .postcard { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } .pc-side { border-left: 2px dashed var(--line); } }
+.pc-img { min-height: 260px; background: var(--board); display: grid; place-items: center; }
+.pc-img img { width: 100%; height: 100%; max-height: 480px; object-fit: cover; display: block; }
+.pc-fallback { text-align: center; padding: 24px; }
+.pc-fallback .big { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(32px, 6vw, 56px); letter-spacing: -.02em; line-height: 1; color: #F4F1E6; overflow-wrap: anywhere; }
+.pc-fallback .yr { display: block; margin-top: 8px; font-family: var(--mono); font-weight: 600; font-size: clamp(20px, 3.4vw, 30px); color: var(--board-ink); }
+.pc-fallback small { display: block; margin-top: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--board-dim); }
+.pc-teacher { display: none; margin-top: 12px; font-size: 13.5px; color: #B7C4CB; }
+body.teacher .pc-teacher { display: block; }
+.pc-side { position: relative; padding: 20px 22px 22px; }
+.pc-side h3 { font-size: 24px; line-height: 1.3; margin: 0 112px 8px 0; }
+.pc-cap { margin: 0 112px 12px 0; font-size: 15px; color: var(--muted); }
+.pc-stamp { position: absolute; top: 14px; right: 14px; width: 98px; height: 98px; border-radius: 50%; border: 3px double var(--signal-text); color: var(--signal-text); display: grid; place-content: center; text-align: center; transform: rotate(-12deg); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; line-height: 1.25; padding: 8px; }
+.pc-stamp b { font-size: 19px; display: block; letter-spacing: 0; }
+.pc-stamp span { overflow-wrap: anywhere; }
+@media (max-width: 560px) { .pc-cap { margin-right: 0; } .pc-side h3 { margin: 0 0 8px; font-size: 21px; } .pc-stamp { position: static; float: right; width: 88px; height: 88px; margin: 0 0 8px 10px; } }
+
+/* lens */
+.lens { text-align: left; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 18px; display: block; width: 100%; }
+.lens:hover { border-color: var(--ink); }
+.lens .nm { font-family: var(--display); font-weight: 800; font-size: 24px; display: block; }
+.lens .tg { color: var(--muted); font-size: 15.5px; display: block; margin-top: 2px; }
+.lens .more { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 15.5px; }
+.lens .more b { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-text); display: block; margin-top: 8px; }
+.lens .more b:first-child { margin-top: 0; }
+.lens[aria-expanded="true"] { border-color: var(--teal); background: var(--teal-tint); }
+.lens[aria-expanded="true"] .more { display: block; }
+.lens.spun { outline: 4px solid var(--gold); outline-offset: 3px; }
+
+/* matcher */
+.scn { background: var(--surface); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.scn p.s { font-size: 18px; margin-bottom: 12px; }
+.scn .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { min-height: 46px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; font-size: 15.5px; }
+.opt:hover { border-color: var(--ink); }
+.opt.right { background: var(--good-tint); border-color: var(--good); }
+.opt.wrong { background: var(--bad-tint); border-color: var(--bad); }
+.scn .why { display: none; margin-top: 12px; font-size: 16.5px; }
+.scn.done .why { display: block; }
+.four { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .four { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .four { grid-template-columns: repeat(4, 1fr); } }
+.four div { background: var(--surface); padding: 16px; border-radius: 14px; box-shadow: var(--shadow); }
+.four b { font-family: var(--display); font-size: 20px; display: block; margin-bottom: 4px; }
+.four span { color: var(--muted); font-size: 15.5px; }
+.verdict { font-family: var(--display); font-weight: 700; font-size: clamp(20px, 3vw, 28px); line-height: 1.25; }
+.verdict u { text-decoration-color: var(--signal); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+
+/* arrivals */
+.reveal-grid { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 18px; }
+@media (min-width: 700px) { .reveal-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .reveal-grid { grid-template-columns: repeat(3, 1fr); } }
+.reveal-grid div { background: var(--surface); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); }
+.reveal-grid .ib { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--signal-text); display: block; margin-bottom: 4px; }
+.reveal-grid b { font-family: var(--display); font-size: 20px; display: block; line-height: 1.15; margin-bottom: 4px; }
+.reveal-grid span.d { color: var(--muted); font-size: 15.5px; }
+.big-sum { margin-top: 18px; background: var(--board); color: #F4F1E6; border-radius: 16px; padding: 22px 24px; font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3.4vw, 32px); line-height: 1.2; }
+.big-sum em { font-style: normal; color: var(--board-ink); }
+.three-two-one { display: grid; gap: 12px; grid-template-columns: 1fr; margin-top: 8px; }
+@media (min-width: 700px) { .three-two-one { grid-template-columns: repeat(3, 1fr); } }
+.three-two-one div { border-radius: 14px; padding: 18px; }
+.three-two-one .n { font-family: var(--mono); font-size: 54px; font-weight: 600; line-height: 1; display: block; margin-bottom: 4px; }
+
+/* teacher */
+[data-teacher] { display: none; }
+body.teacher [data-teacher] { display: block; }
+.tnote { margin-top: 18px; border: 2px solid var(--gold); background: var(--gold-tint); border-radius: 14px; padding: 16px 20px; font-size: 16px; }
+.tnote h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.tnote ul { margin: 0; padding-left: 1.1em; }
+.tnote li { margin-bottom: .3em; }
+.tpanel { margin-top: 28px; }
+.tpanel .tnote { margin-top: 0; }
+.footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14.5px; }
+.linkbtn { background: none; border: 0; color: var(--muted); text-decoration: underline; min-height: 44px; padding: 0 8px; font-size: 14.5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+/* ---- era themes: each destination gets its own period look ---- */
+
+[data-era="bureau"] {
+  --ground: #EEF2F1;
+  --surface: #FFFFFF;
+  --surface-2: #E3EAE9;
+  --ink: #14212B;
+  --muted: #52606B;
+  --line: #C9D3D4;
+  --signal: #D0421A;
+  --on-signal: #FFFFFF;
+  --signal-tint: #FBE3DA;
+  --signal-text: #B93A16;
+  --teal: #0B6E75;
+  --on-teal: #FFFFFF;
+  --teal-tint: #D6ECEE;
+  --teal-text: #0B6E75;
+  --gold: #F2B632;
+  --on-gold: #14212B;
+  --gold-tint: #FBEFCB;
+  --board: #16232D;
+  --board-ink: #F4C95D;
+  --board-dim: #6E7F8A;
+  --display: 'Bricolage Grotesque','Avenir Next','Trebuchet MS',system-ui,sans-serif;
+  --shadow: 0 1px 0 rgba(20,33,43,.06), 0 8px 24px -12px rgba(20,33,43,.28);
+  --r: 16px;
+  --rs: 10px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.01em;
+  --mono: 'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --tex: none;
+}
+
+[data-era="tokyo"] {
+  --ground: #F1E8D5;
+  --surface: #FBF6EA;
+  --surface-2: #E7DCC3;
+  --ink: #1F1A16;
+  --muted: #5A4F45;
+  --line: #CDBF9F;
+  --signal: #C23A22;
+  --on-signal: #FFFFFF;
+  --signal-tint: #F6DAD0;
+  --signal-text: #A82F19;
+  --teal: #25457A;
+  --on-teal: #FFFFFF;
+  --teal-tint: #DCE3EE;
+  --teal-text: #25457A;
+  --gold: #D9A93B;
+  --on-gold: #1F1A16;
+  --gold-tint: #F3E6BF;
+  --board: #1B2740;
+  --board-ink: #E8C46A;
+  --board-dim: #8D9BB5;
+  --display: 'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',Georgia,serif;
+  --shadow: 0 0 0 1px rgba(31,26,22,.14), 0 3px 0 -1px rgba(31,26,22,.10);
+  --r: 3px;
+  --rs: 3px;
+  --rp: 3px;
+  --tt: none;
+  --ls: 0;
+  --tex: repeating-linear-gradient(0deg, rgba(110,80,40,.045) 0 1px, transparent 1px 5px), repeating-linear-gradient(90deg, rgba(110,80,40,.03) 0 1px, transparent 1px 7px);
+}
+
+[data-era="kampala"] {
+  --ground: #F3E7CF;
+  --surface: #FFF9EC;
+  --surface-2: #E9D9B6;
+  --ink: #2A1D12;
+  --muted: #5E4B39;
+  --line: #D3BE93;
+  --signal: #C4451A;
+  --on-signal: #FFFFFF;
+  --signal-tint: #F7D9C5;
+  --signal-text: #A2360F;
+  --teal: #4A6B2A;
+  --on-teal: #FFFFFF;
+  --teal-tint: #DDE6C6;
+  --teal-text: #435F25;
+  --gold: #E3A428;
+  --on-gold: #2A1D12;
+  --gold-tint: #F6E3AE;
+  --board: #2B1D12;
+  --board-ink: #F0B93C;
+  --board-dim: #A89274;
+  --display: 'Fraunces','Cooper Black','Hoefler Text',Georgia,serif;
+  --shadow: 0 10px 24px -12px rgba(60,30,10,.38);
+  --r: 22px;
+  --rs: 14px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.015em;
+  --tex: none;
+}
+
+[data-era="havana"] {
+  --ground: #EFE9DA;
+  --surface: #FAF6EA;
+  --surface-2: #E2DAC4;
+  --ink: #14130F;
+  --muted: #55524A;
+  --line: #C9BFA5;
+  --signal: #C4161C;
+  --on-signal: #FFFFFF;
+  --signal-tint: #F4D3D1;
+  --signal-text: #A9121A;
+  --teal: #4A5527;
+  --on-teal: #FFFFFF;
+  --teal-tint: #DFE3C9;
+  --teal-text: #4A5527;
+  --gold: #E0B12E;
+  --on-gold: #14130F;
+  --gold-tint: #F4E7B4;
+  --board: #16150F;
+  --board-ink: #FF6B5E;
+  --board-dim: #98937F;
+  --display: 'Anton','Impact','Haettenschweiler','Arial Narrow Bold',sans-serif;
+  --shadow: 4px 4px 0 rgba(20,19,15,.88);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: none;
+}
+
+[data-era="guatemala"] {
+  --ground: #E9E4D3;
+  --surface: #F7F3E6;
+  --surface-2: #DDD6C0;
+  --ink: #1A1A17;
+  --muted: #575445;
+  --line: #BDB59B;
+  --signal: #B5361B;
+  --on-signal: #FFFFFF;
+  --signal-tint: #F1D6CB;
+  --signal-text: #9C2D14;
+  --teal: #2E5E45;
+  --on-teal: #FFFFFF;
+  --teal-tint: #D5E4D9;
+  --teal-text: #2A5540;
+  --gold: #D8A730;
+  --on-gold: #1A1A17;
+  --gold-tint: #F0E2B0;
+  --board: #1D1F1B;
+  --board-ink: #E9C46A;
+  --board-dim: #8E9082;
+  --display: 'Abril Fatface','Didot','Bodoni 72',Georgia,serif;
+  --shadow: 3px 3px 0 rgba(26,26,23,.28);
+  --r: 2px;
+  --rs: 2px;
+  --rp: 2px;
+  --tt: none;
+  --ls: 0;
+  --mono: 'Courier Prime','Courier New',ui-monospace,monospace;
+  --tex: radial-gradient(rgba(26,26,23,.075) 1px, transparent 1.3px) 0 0 / 6px 6px;
+}
+
+[data-era="moscow"] {
+  --ground: #E8E6E1;
+  --surface: #F6F5F1;
+  --surface-2: #D9D6CF;
+  --ink: #15171A;
+  --muted: #52565C;
+  --line: #BDBAB2;
+  --signal: #C8161D;
+  --on-signal: #FFFFFF;
+  --signal-tint: #F3D0D2;
+  --signal-text: #A8111A;
+  --teal: #2F4A63;
+  --on-teal: #FFFFFF;
+  --teal-tint: #D8E0E8;
+  --teal-text: #2B455D;
+  --gold: #E2B32F;
+  --on-gold: #15171A;
+  --gold-tint: #F3E5B0;
+  --board: #14171B;
+  --board-ink: #F0C63C;
+  --board-dim: #8C939B;
+  --display: 'Russo One','Arial Black','Trebuchet MS',sans-serif;
+  --shadow: 4px 4px 0 rgba(21,23,26,.85);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: repeating-linear-gradient(135deg, rgba(200,22,29,.045) 0 14px, transparent 14px 28px);
+}
+
+@media (prefers-color-scheme: dark) {
+
+:root:not([data-theme="light"]) [data-era="bureau"] {
+  --ground: #0E1820;
+  --surface: #16232D;
+  --surface-2: #1E2F3B;
+  --ink: #EAF0F0;
+  --muted: #A2B3BC;
+  --line: #2B3E4A;
+  --signal: #FF7A52;
+  --on-signal: #0E1820;
+  --signal-tint: #3A231C;
+  --signal-text: #FF9A78;
+  --teal: #4FC1C9;
+  --on-teal: #0E1820;
+  --teal-tint: #143038;
+  --teal-text: #6FD3DA;
+  --gold: #F2B632;
+  --on-gold: #14212B;
+  --gold-tint: #3A3115;
+  --board: #0A1218;
+  --board-ink: #F4C95D;
+  --board-dim: #6E7F8A;
+  --display: 'Bricolage Grotesque','Avenir Next','Trebuchet MS',system-ui,sans-serif;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -12px rgba(0,0,0,.6);
+  --r: 16px;
+  --rs: 10px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.01em;
+  --mono: 'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --tex: none;
+}
+
+:root:not([data-theme="light"]) [data-era="tokyo"] {
+  --ground: #171410;
+  --surface: #221D17;
+  --surface-2: #2D261E;
+  --ink: #EFE6D2;
+  --muted: #B5A995;
+  --line: #40362A;
+  --signal: #F0654A;
+  --on-signal: #171410;
+  --signal-tint: #3E211A;
+  --signal-text: #FF917A;
+  --teal: #7FA0DC;
+  --on-teal: #171410;
+  --teal-tint: #1D2740;
+  --teal-text: #9DB8EA;
+  --gold: #D9A93B;
+  --on-gold: #1F1A16;
+  --gold-tint: #3A3018;
+  --board: #0F1626;
+  --board-ink: #E8C46A;
+  --board-dim: #8D9BB5;
+  --display: 'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',Georgia,serif;
+  --shadow: 0 0 0 1px rgba(239,230,210,.10), 0 3px 0 -1px rgba(0,0,0,.5);
+  --r: 3px;
+  --rs: 3px;
+  --rp: 3px;
+  --tt: none;
+  --ls: 0;
+  --tex: repeating-linear-gradient(0deg, rgba(255,240,210,.03) 0 1px, transparent 1px 5px);
+}
+
+:root:not([data-theme="light"]) [data-era="kampala"] {
+  --ground: #1A130C;
+  --surface: #251B11;
+  --surface-2: #33261A;
+  --ink: #F5E9D0;
+  --muted: #BFA98A;
+  --line: #4A3928;
+  --signal: #F27A4A;
+  --on-signal: #1A130C;
+  --signal-tint: #40241A;
+  --signal-text: #FF9D74;
+  --teal: #9DBB62;
+  --on-teal: #1A130C;
+  --teal-tint: #2A3216;
+  --teal-text: #B5D07A;
+  --gold: #E3A428;
+  --on-gold: #2A1D12;
+  --gold-tint: #3D3016;
+  --board: #100B06;
+  --board-ink: #F0B93C;
+  --board-dim: #A89274;
+  --display: 'Fraunces','Cooper Black','Hoefler Text',Georgia,serif;
+  --shadow: 0 10px 24px -12px rgba(0,0,0,.7);
+  --r: 22px;
+  --rs: 14px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.015em;
+  --tex: none;
+}
+
+:root:not([data-theme="light"]) [data-era="havana"] {
+  --ground: #14130F;
+  --surface: #1F1E19;
+  --surface-2: #2B2A23;
+  --ink: #F0EAD8;
+  --muted: #B0AB9A;
+  --line: #3E3C33;
+  --signal: #FF5D5D;
+  --on-signal: #14130F;
+  --signal-tint: #40191B;
+  --signal-text: #FF8B87;
+  --teal: #A8B96A;
+  --on-teal: #14130F;
+  --teal-tint: #2A3018;
+  --teal-text: #BFCF82;
+  --gold: #E0B12E;
+  --on-gold: #14130F;
+  --gold-tint: #3A3215;
+  --board: #0B0A08;
+  --board-ink: #FF6B5E;
+  --board-dim: #98937F;
+  --display: 'Anton','Impact','Haettenschweiler','Arial Narrow Bold',sans-serif;
+  --shadow: 4px 4px 0 rgba(0,0,0,.75);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: none;
+}
+
+:root:not([data-theme="light"]) [data-era="guatemala"] {
+  --ground: #171612;
+  --surface: #22211B;
+  --surface-2: #2E2C24;
+  --ink: #ECE7D5;
+  --muted: #ADA88F;
+  --line: #423F33;
+  --signal: #F0704F;
+  --on-signal: #171612;
+  --signal-tint: #3D211A;
+  --signal-text: #FF9A7E;
+  --teal: #6FB58F;
+  --on-teal: #171612;
+  --teal-tint: #1B3327;
+  --teal-text: #8CCBA6;
+  --gold: #D8A730;
+  --on-gold: #1A1A17;
+  --gold-tint: #3A3116;
+  --board: #0E0F0C;
+  --board-ink: #E9C46A;
+  --board-dim: #8E9082;
+  --display: 'Abril Fatface','Didot','Bodoni 72',Georgia,serif;
+  --shadow: 3px 3px 0 rgba(0,0,0,.6);
+  --r: 2px;
+  --rs: 2px;
+  --rp: 2px;
+  --tt: none;
+  --ls: 0;
+  --mono: 'Courier Prime','Courier New',ui-monospace,monospace;
+  --tex: radial-gradient(rgba(236,231,213,.05) 1px, transparent 1.3px) 0 0 / 6px 6px;
+}
+
+:root:not([data-theme="light"]) [data-era="moscow"] {
+  --ground: #121417;
+  --surface: #1C1F24;
+  --surface-2: #272B31;
+  --ink: #ECEAE6;
+  --muted: #A9ADB3;
+  --line: #383C43;
+  --signal: #FF565E;
+  --on-signal: #121417;
+  --signal-tint: #401A1D;
+  --signal-text: #FF8A90;
+  --teal: #7FA4C8;
+  --on-teal: #121417;
+  --teal-tint: #1C2A38;
+  --teal-text: #9DBBD8;
+  --gold: #E2B32F;
+  --on-gold: #15171A;
+  --gold-tint: #3A3116;
+  --board: #0B0D10;
+  --board-ink: #F0C63C;
+  --board-dim: #8C939B;
+  --display: 'Russo One','Arial Black','Trebuchet MS',sans-serif;
+  --shadow: 4px 4px 0 rgba(0,0,0,.75);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: repeating-linear-gradient(135deg, rgba(255,86,94,.05) 0 14px, transparent 14px 28px);
+}
+
+}
+
+:root[data-theme="dark"] [data-era="bureau"] {
+  --ground: #0E1820;
+  --surface: #16232D;
+  --surface-2: #1E2F3B;
+  --ink: #EAF0F0;
+  --muted: #A2B3BC;
+  --line: #2B3E4A;
+  --signal: #FF7A52;
+  --on-signal: #0E1820;
+  --signal-tint: #3A231C;
+  --signal-text: #FF9A78;
+  --teal: #4FC1C9;
+  --on-teal: #0E1820;
+  --teal-tint: #143038;
+  --teal-text: #6FD3DA;
+  --gold: #F2B632;
+  --on-gold: #14212B;
+  --gold-tint: #3A3115;
+  --board: #0A1218;
+  --board-ink: #F4C95D;
+  --board-dim: #6E7F8A;
+  --display: 'Bricolage Grotesque','Avenir Next','Trebuchet MS',system-ui,sans-serif;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -12px rgba(0,0,0,.6);
+  --r: 16px;
+  --rs: 10px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.01em;
+  --mono: 'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --tex: none;
+}
+
+:root[data-theme="dark"] [data-era="tokyo"] {
+  --ground: #171410;
+  --surface: #221D17;
+  --surface-2: #2D261E;
+  --ink: #EFE6D2;
+  --muted: #B5A995;
+  --line: #40362A;
+  --signal: #F0654A;
+  --on-signal: #171410;
+  --signal-tint: #3E211A;
+  --signal-text: #FF917A;
+  --teal: #7FA0DC;
+  --on-teal: #171410;
+  --teal-tint: #1D2740;
+  --teal-text: #9DB8EA;
+  --gold: #D9A93B;
+  --on-gold: #1F1A16;
+  --gold-tint: #3A3018;
+  --board: #0F1626;
+  --board-ink: #E8C46A;
+  --board-dim: #8D9BB5;
+  --display: 'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',Georgia,serif;
+  --shadow: 0 0 0 1px rgba(239,230,210,.10), 0 3px 0 -1px rgba(0,0,0,.5);
+  --r: 3px;
+  --rs: 3px;
+  --rp: 3px;
+  --tt: none;
+  --ls: 0;
+  --tex: repeating-linear-gradient(0deg, rgba(255,240,210,.03) 0 1px, transparent 1px 5px);
+}
+
+:root[data-theme="dark"] [data-era="kampala"] {
+  --ground: #1A130C;
+  --surface: #251B11;
+  --surface-2: #33261A;
+  --ink: #F5E9D0;
+  --muted: #BFA98A;
+  --line: #4A3928;
+  --signal: #F27A4A;
+  --on-signal: #1A130C;
+  --signal-tint: #40241A;
+  --signal-text: #FF9D74;
+  --teal: #9DBB62;
+  --on-teal: #1A130C;
+  --teal-tint: #2A3216;
+  --teal-text: #B5D07A;
+  --gold: #E3A428;
+  --on-gold: #2A1D12;
+  --gold-tint: #3D3016;
+  --board: #100B06;
+  --board-ink: #F0B93C;
+  --board-dim: #A89274;
+  --display: 'Fraunces','Cooper Black','Hoefler Text',Georgia,serif;
+  --shadow: 0 10px 24px -12px rgba(0,0,0,.7);
+  --r: 22px;
+  --rs: 14px;
+  --rp: 999px;
+  --tt: none;
+  --ls: -0.015em;
+  --tex: none;
+}
+
+:root[data-theme="dark"] [data-era="havana"] {
+  --ground: #14130F;
+  --surface: #1F1E19;
+  --surface-2: #2B2A23;
+  --ink: #F0EAD8;
+  --muted: #B0AB9A;
+  --line: #3E3C33;
+  --signal: #FF5D5D;
+  --on-signal: #14130F;
+  --signal-tint: #40191B;
+  --signal-text: #FF8B87;
+  --teal: #A8B96A;
+  --on-teal: #14130F;
+  --teal-tint: #2A3018;
+  --teal-text: #BFCF82;
+  --gold: #E0B12E;
+  --on-gold: #14130F;
+  --gold-tint: #3A3215;
+  --board: #0B0A08;
+  --board-ink: #FF6B5E;
+  --board-dim: #98937F;
+  --display: 'Anton','Impact','Haettenschweiler','Arial Narrow Bold',sans-serif;
+  --shadow: 4px 4px 0 rgba(0,0,0,.75);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: none;
+}
+
+:root[data-theme="dark"] [data-era="guatemala"] {
+  --ground: #171612;
+  --surface: #22211B;
+  --surface-2: #2E2C24;
+  --ink: #ECE7D5;
+  --muted: #ADA88F;
+  --line: #423F33;
+  --signal: #F0704F;
+  --on-signal: #171612;
+  --signal-tint: #3D211A;
+  --signal-text: #FF9A7E;
+  --teal: #6FB58F;
+  --on-teal: #171612;
+  --teal-tint: #1B3327;
+  --teal-text: #8CCBA6;
+  --gold: #D8A730;
+  --on-gold: #1A1A17;
+  --gold-tint: #3A3116;
+  --board: #0E0F0C;
+  --board-ink: #E9C46A;
+  --board-dim: #8E9082;
+  --display: 'Abril Fatface','Didot','Bodoni 72',Georgia,serif;
+  --shadow: 3px 3px 0 rgba(0,0,0,.6);
+  --r: 2px;
+  --rs: 2px;
+  --rp: 2px;
+  --tt: none;
+  --ls: 0;
+  --mono: 'Courier Prime','Courier New',ui-monospace,monospace;
+  --tex: radial-gradient(rgba(236,231,213,.05) 1px, transparent 1.3px) 0 0 / 6px 6px;
+}
+
+:root[data-theme="dark"] [data-era="moscow"] {
+  --ground: #121417;
+  --surface: #1C1F24;
+  --surface-2: #272B31;
+  --ink: #ECEAE6;
+  --muted: #A9ADB3;
+  --line: #383C43;
+  --signal: #FF565E;
+  --on-signal: #121417;
+  --signal-tint: #401A1D;
+  --signal-text: #FF8A90;
+  --teal: #7FA4C8;
+  --on-teal: #121417;
+  --teal-tint: #1C2A38;
+  --teal-text: #9DBBD8;
+  --gold: #E2B32F;
+  --on-gold: #15171A;
+  --gold-tint: #3A3116;
+  --board: #0B0D10;
+  --board-ink: #F0C63C;
+  --board-dim: #8C939B;
+  --display: 'Russo One','Arial Black','Trebuchet MS',sans-serif;
+  --shadow: 4px 4px 0 rgba(0,0,0,.75);
+  --r: 0px;
+  --rs: 0px;
+  --rp: 0px;
+  --tt: uppercase;
+  --ls: 0.01em;
+  --tex: repeating-linear-gradient(135deg, rgba(255,86,94,.05) 0 14px, transparent 14px 28px);
+}
+
+/* era support: shape, type and texture follow the tokens above */
+[data-era] { font-synthesis: none; }
+body[data-era] { background-image: var(--tex); }
+[data-era] :is(h1, h2, .dep .pl) { text-transform: var(--tt); letter-spacing: var(--ls); }
+[data-era] :is(.panel, .rung, .scn, .four div, .reveal-grid div, .lens, .postcard, .pass, .q-block, .ex, .rules2 > div, .avail, .readout, .tnote, .handout, .card-src, .q3 div, .big-sum, .three-two-one div, .board, .ticker, .links a, .tool, .wildform, .rule, .fb, .check, .starter, textarea.draft, .gate-code, .dep),
+.dep[data-era] { border-radius: var(--r); }
+[data-era] .pass-top { border-radius: var(--r) 0 0 0; }
+@media (max-width: 560px) { [data-era] .pass-top { border-radius: var(--r) var(--r) 0 0; } }
+[data-era] :is(.chip, .opt, .pill, .tag) { border-radius: var(--rp); }
+[data-era] :is(.btn, .clock button) { border-radius: var(--rs); }
+.pc-img img { height: auto; max-height: 560px; object-fit: contain; }
+.pc-extra { margin-top: 4px; }
+.pc-extra[hidden] { display: none; }
+.warp { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 45%, var(--board-ink) 0, var(--board) 42%, var(--board) 100%); }
+.warp.go { animation: warpGo .8s ease-out; }
+@keyframes warpGo { 0% { opacity: 0; transform: scale(1.4); } 25% { opacity: .96; } 100% { opacity: 0; transform: scale(1); } }
+</style>
+
+<div id="top"></div>
+<div class="warp" id="warp" aria-hidden="true"></div>
+<header class="flightbar" id="flightbar">
+  <span class="brand">TTB&nbsp;·&nbsp;LESSON&nbsp;1</span>
+  <nav class="pills" id="pills" aria-label="Gates"></nav>
+  <div class="clock">
+    <span class="clock-now" id="clockNow">Class clock</span>
+    <span class="clock-time" id="clockTime">60:00</span>
+    <button type="button" class="go" id="clockBtn">Start</button>
+    <button type="button" id="clockReset" aria-label="Reset the class clock">Reset</button>
+  </div>
+  <div class="tripbar" id="tripBar" hidden><span>NOW IN</span><b id="tbPlace"></b><span id="tbWhen"></span><span class="away" id="tbAway"></span></div>
+</header>
+
+<div class="wrap">
+
+<!-- ================================================= CHECK-IN -->
+<div id="screen0">
+<section class="hero">
+  <div>
+    <p class="eyebrow">IB History · Lesson one · 60 minutes</p>
+    <h1>Where would <em>you</em> go?</h1>
+    <p class="lede">You have one hour, an iPad and a time machine with a single rule: you must bring back evidence.</p>
+    <div class="hero-actions">
+      <button type="button" class="btn primary" id="checkin" data-jump="gate1">Check in</button>
+    </div>
+    <p class="hint-line">Seven gates. Each one opens when you finish the one before.</p>
+  </div>
+  <section class="plan" aria-labelledby="planH">
+    <p class="eyebrow" id="planH">Flight plan</p>
+    <div class="board" id="board"></div>
+  </section>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <span class="ticker-label">NOW BOARDING</span>
+  <div class="flaps" id="flaps"></div>
+</div>
+
+<!-- teacher panel -->
+<section class="tpanel" data-teacher>
+  <div class="tnote">
+    <h4>Teacher view · before you start</h4>
+    <ul>
+      <li><b>Prep:</b> project this page; print one Field Notes handout per student (double-sided); test the source links on school wifi; decide your own example destination to model at Gate 1.</li>
+      <li><b>How the page runs:</b> one gate at a time. Students tap Next to move on (Gate 1 needs a departure first), and later gates stay locked until they get there, so nobody can scroll ahead. Teacher view unlocks every gate so you can preview or jump.</li>
+      <li><b>Class clock:</b> press Start in the top bar. A dot on a gate button marks where the class should be. Students move at their own pace, so use the dot to see who is ahead or behind. Pause it when you need to.</li>
+      <li><b>If you run late, cut in this order:</b> Gate 2 chips (discuss out loud, students tap Next) → Gate 4 sorter (go straight to the hunt) → Gate 6 matcher (state the four reasons yourself).</li>
+      <li><b>Landing pictures:</b> each destination has a slot on the Arrivals postcard. Save the photo in an <code>images</code> folder next to this page and set <code>landing.img</code> for that destination in the <code>EXTRA</code> list in the script. Until then a placeholder shows.</li>
+      <li><b>Plan B if wifi drops:</b> students keep their questions and the "what would I look for?" list from Gates 3–5 on the handout; finish the hunt as homework.</li>
+      <li><b>Get-to-know:</b> jot down two or three destinations and reasons you hear at Gate 1. They tell you a lot about what will hook this class later.</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<!-- ================================================= GATE 1 -->
+<section class="gate" id="gate1">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>1</b></div>
+    <div><span class="when">MINUTES 0–7 · BOARD</span><h2>The time machine is leaving</h2></div>
+  </div>
+  <p class="brief">Five departures are on the board, and one seat is for a destination of your own. Choose the one you are most curious about. Not the "right" answer. Your boarding pass, further down, fills itself in when you board.</p>
+
+  <div style="margin-top:14px"><button type="button" class="btn" id="surprise">Can’t decide? Surprise me</button></div>
+  <div class="deps" id="deps" role="group" aria-label="Departures"></div>
+  <div class="dep-status" id="depStatus" aria-live="polite"></div>
+  <div class="wildform" id="wildForm" hidden>
+    <label class="f"><span>Your destination</span><input id="wPlace" type="text" maxlength="30" placeholder="A real place, e.g. Tenochtitlan" autocomplete="off"></label>
+    <label class="f"><span>Year / period</span><input id="wWhen" type="text" maxlength="16" placeholder="e.g. 1519" autocomplete="off"></label>
+  </div>
+
+  <h3 style="margin:28px 0 12px">Your boarding pass</h3>
+  <div style="max-width:760px">
+  <div class="pass" id="pass">
+    <div class="pass-main">
+      <div class="pass-top"><span>TIME TRAVEL BUREAU</span><span>BOARDING PASS</span></div>
+      <div class="pass-fields">
+        <label class="f f-name"><span>Passenger</span><input id="inName" type="text" maxlength="28" placeholder="Your name" autocomplete="off"></label>
+        <label class="f"><span>Destination</span><input id="inPlace" type="text" maxlength="30" placeholder="Tenochtitlan" autocomplete="off"></label>
+        <label class="f"><span>Year / period</span><input id="inWhen" type="text" maxlength="16" placeholder="1519" autocomplete="off"></label>
+        <label class="f f-why"><span>Reason for travel</span><input id="inWhy" type="text" maxlength="60" placeholder="I want to see the market" autocomplete="off"></label>
+      </div>
+      <div class="pass-meta">FLIGHT TT-001 · SEAT 1A · 60 MIN · BAGGAGE: EVIDENCE ONLY</div>
+    </div>
+    <div class="pass-stub">
+      <div>
+        <div class="to">TO</div>
+        <div class="place" id="stubPlace">Tenochtitlan</div>
+        <div class="when" id="stubWhen">1519</div>
+      </div>
+      <div class="barcode" aria-hidden="true"></div>
+    </div>
+  </div>
+  <p class="ghost-note" id="ghostNote">Grey text is an example. Board a departure above and this fills itself in.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:20px">
+    <div class="panel">
+      <h3>The rules of the trip</h3>
+      <ul class="plain-list">
+        <li>Whichever seat you take, you must bring back <b>evidence</b>.</li>
+        <li>A destination of your own has to be a <b>real</b> place and moment, before you were born.</li>
+        <li>Big event or ordinary Tuesday, both count. An ordinary day nobody wrote down is a great choice.</li>
+      </ul>
+    </div>
+    <div class="panel tint-gold">
+      <h3>Can't decide?</h3>
+      <ul class="plain-list">
+        <li>Which hook made you want to know what happens next?</li>
+        <li>Which one do you know <i>least</i> about? That is often the most fun.</li>
+        <li>Or press <b>Surprise me</b> above and let the machine choose.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel tint-teal" style="margin-top:18px">
+    <h3>Now: 60 seconds, eyes closed</h3>
+    <p style="margin:0;font-size:18px">You step out of the time machine into <span class="ph" data-tpl="{PY}"></span>. What do you <b>see</b>? What do you <b>hear</b>? What do you <b>smell</b>? Who is around you and what are they doing? Then turn to the person next to you and tell them where you are going and <i>why</i>.</p>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 1</b><p>Copy your destination onto your handout, then jot three quick details you pictured.</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 1 · 7 min</h4>
+    <ul>
+      <li>The five departures are drawn from the course: Meiji Restoration, Amin's Uganda, Castro's Cuba, the Cold War in Guatemala, and the end of the USSR. Turn on Teacher view to see the link on each card. Everything that changes with the choice (question ideas, evidence guide, links, lens prompts, real arguments) lives in one <code>DEPS</code> list at the top of the script, so you can swap a destination for one you teach.</li>
+      <li>A student who takes the wildcard seat gets more general tips, plus an evidence guide that adjusts to the year they type.</li>
+      <li>Model it first with your own choice (two sentences). Then let them write.</li>
+      <li>Walk round during the 60 seconds and watch for anyone stuck. Offer the "ordinary day" idea.</li>
+      <li>Pair-share is the icebreaker. Ask two or three students to share their <i>why</i> with the room.</li>
+      <li>Cut if short on time: skip the room share.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= GATE 2 -->
+<section class="gate" id="gate2">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>2</b></div>
+    <div><span class="when">MINUTES 7–12 · REALITY CHECK</span><h2>Where did that picture come from?</h2></div>
+  </div>
+  <p class="brief">The scene you pictured for <span class="ph" data-tpl="{PY}"></span> appeared instantly. But you were not there, so where did the details come from? Tap everything that shaped your picture.</p>
+
+  <div class="panel" style="margin-top:20px">
+    <div class="chips" id="chips"></div>
+    <div class="readout" id="readout" aria-live="polite">
+      <span class="big">Tap the things that shaped your picture.</span>
+      <span>I will count how many of them were made <i>at the time</i>.</span>
+    </div>
+    <div class="rule"><span>Historian's rule #1</span>Your first picture is a hypothesis, not a fact.</div>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 2</b><p>Write down your top two influences. Which one do you trust <i>least</i>, and why?</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 2 · 5 min</h4>
+    <ul>
+      <li>Ask: "Which influence do you trust least?" Take two or three answers. The point is that they are already judging sources without being told to.</li>
+      <li>Name it lightly: every film, game and textbook is somebody's <i>interpretation</i>, made later, for a reason. This is the seed of source context (Paper 1) and perspectives.</li>
+      <li>Cut if short on time: discuss aloud, skip the tapping.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= GATE 3 -->
+<section class="gate" id="gate3">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>3</b></div>
+    <div><span class="when">MINUTES 12–20 · QUESTION FORGE</span><h2>Forge a question worth chasing</h2></div>
+  </div>
+  <p class="brief">"What was it like?" is a great start and a terrible research question, because you would never finish. Historians upgrade their questions until the evidence can actually answer them, and until a reasonable person could disagree with the answer.</p>
+
+  <div class="panel" style="margin-top:20px">
+    <h3>The question ladder</h3>
+    <p style="color:var(--muted)" id="ladderTitle">Here is one for Paris in 1789. Aim for rung 3 or 4.</p>
+    <div class="ladder">
+      <div class="rung"><div class="lvl">RUNG 1</div><div><q id="rq1">When did the Bastille fall?</q><small>Fact. Answered in five seconds. Nothing to research.</small></div></div>
+      <div class="rung"><div class="lvl">RUNG 2</div><div><q id="rq2">What was Paris like in 1789?</q><small>Describe. A list of facts. Where would you even stop?</small></div></div>
+      <div class="rung hi"><div class="lvl">RUNG 3</div><div><q id="rq3">Why did ordinary Parisians turn on the king in 1789?</q><small>Explain. Needs evidence and an argument.</small></div></div>
+      <div class="rung hi"><div class="lvl">RUNG 4</div><div><q id="rq4">Who gained the most from the fall of the Bastille, and who lost?</q><small>Debate. Historians will disagree, and that is the fun part.</small></div></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h3>The forge</h3>
+    <p style="color:var(--muted)">Pick a thinking tool. Then tap a starter to load it, and finish the blanks (<span class="mono" style="background:var(--gold-tint);padding:0 6px;border-radius:4px">______</span>) so it fits your place and time.</p>
+    <div class="tools" id="tools" role="group" aria-label="Thinking tools"></div>
+    <div class="starters" id="starters" aria-live="polite"></div>
+    <div class="ideas" id="ideas" hidden>
+      <p>Stuck on a blank? Tap an idea to drop it into your draft. These are things that happened around <span class="ph" data-tpl="{PY}"></span>.</p>
+      <div class="chips" id="ideaChips"></div>
+    </div>
+    <label for="draftQ" class="eyebrow" style="display:block">Your draft question</label>
+    <textarea id="draftQ" class="draft" placeholder="Tap a starter above, or type your own question here."></textarea>
+
+    <div class="checks" id="checks"></div>
+    <div class="meter"><div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div><div class="meter-label" id="meterLabel">Not checked yet</div></div>
+    <p style="margin:14px 0 0;color:var(--muted);font-size:15.5px">Your question can change as you research. Real historians rewrite theirs all the time.</p>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 3</b><p>Write your first question ("what was it like?" is allowed), then your upgraded question. Tick the checks it passes.</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 3 · 8 min</h4>
+    <ul>
+      <li>Circulate with one question: "Could two historians answer that differently?" If not, send them up a rung.</li>
+      <li>Common problems: too big ("Why did Rome fall?") means narrow the place and time; too factual means add "why" or "who gained".</li>
+      <li>The four tools are the IB concepts in plain words: cause and consequence, continuity and change, perspectives, significance. You do not need to name them yet.</li>
+      <li>Have two or three students read their upgraded question aloud. Accept imperfect, since it will be revised at Gate 6.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= GATE 4 -->
+<section class="gate" id="gate4">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>4</b></div>
+    <div><span class="when">MINUTES 20–32 · SOURCE DETECTIVE</span><h2>Find what was really there</h2></div>
+  </div>
+  <p class="brief">Time for evidence about <span class="ph" data-tpl="{PY}"></span>. Learn the one big trick with sources first (about three minutes), then go hunting on your iPad.</p>
+
+  <div class="panel sorter" style="margin-top:20px" id="sorter">
+    <h3>Primary or secondary? It depends on your question.</h3>
+    <div class="rules2">
+      <div class="tint-gold"><h4>The quick rule (a good first guess)</h4><p><b>Primary</b> = made at the time, by someone who was there. <b>Secondary</b> = made later, looking back.</p></div>
+      <div class="tint-teal"><h4>The historian's rule</h4><p>A source is not primary or secondary all by itself. It is primary or secondary <b>for a question</b>. Ask: for what I am studying, is this from the time and the people involved, or is it a later or second-hand account?</p></div>
+    </div>
+    <div class="ex-grid">
+      <div class="ex">
+        <p class="ex-src">A soldier’s diary, written in the trenches in 1916</p>
+        <div class="ex-row"><span>Studying <i>life in the trenches</i></span><b class="tag p">PRIMARY</b></div>
+        <div class="ex-row"><span>Studying <i>the Tsar’s rule in 1905</i></span><b class="tag s">SECONDARY</b></div>
+      </div>
+      <div class="ex">
+        <p class="ex-src">A newspaper article about a crime</p>
+        <div class="ex-row"><span>Studying <i>the crime</i></span><b class="tag s">SECONDARY</b></div>
+        <div class="ex-row"><span>Studying <i>the newspaper and its editors</i></span><b class="tag p">PRIMARY</b></div>
+      </div>
+    </div>
+    <h3 style="margin:22px 0 4px;font-size:20px">Your turn: same source, two questions</h3>
+    <p style="color:var(--muted);margin:0 0 4px" id="sortIntro"></p>
+    <div id="sortStage"></div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h3>Your mission: find two sources, then label them for your question</h3>
+    <div class="grid2">
+      <div class="panel tint-signal"><h3 style="font-size:20px">Source 1 · from the time</h3><p style="margin:0">A diary, letter, newspaper, photograph, poster, map, law, object, speech, made when it happened. If you cannot find one, that is a finding: whose voices survived?</p></div>
+      <div class="panel tint-teal"><h3 style="font-size:20px">Source 2 · looking back</h3><p style="margin:0">An article, museum page, documentary, or a historian's summary made later about your place and time.</p></div>
+    </div>
+    <div class="rule" style="margin-top:14px"><span>Then label them</span>Is each source primary or secondary <u>for your question</u>?<div class="qecho" id="qEcho" style="font-weight:600;margin-top:6px"></div></div>
+    <p style="margin:12px 0 0"><b>Bonus:</b> what question could you ask that would flip Source 2 from secondary to primary?</p>
+    <h3 style="margin:22px 0 10px">Question every source with three detective questions</h3>
+    <div class="q3">
+      <div><b>WHO?</b><span>Who made it, and were they there? What did they stand to gain?</span></div>
+      <div><b>WHEN and WHY?</b><span>When was it made and who was it for? To record, to persuade, to sell, to remember?</span></div>
+      <div><b>WHAT'S MISSING?</b><span>What can this not tell me? Whose voice is absent?</span></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px" id="availPanel">
+    <h3>What you can probably find for <span class="ph" data-tpl="{PY}"></span></h3>
+    <p class="avail-note" id="availNote"></p>
+    <div class="grid2" id="availGrid">
+      <div class="avail yes"><h4>Probably out there</h4><ul id="availYes"></ul></div>
+      <div class="avail hard"><h4>Harder to find. That is a finding too.</h4><ul id="availNo"></ul></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Search like a historian</h3>
+      <div class="tip"><code class="ph" data-search="{P} {Y} diary"></code><span>Add words like <i>diary, letters, newspaper, eyewitness, photograph, poster</i> to hunt for things made then.</span></div>
+      <div class="tip"><code class="ph" data-search="{P} {Y} primary source"></code><span>Add <i>"primary source"</i> or <i>"archive"</i> to your topic.</span></div>
+      <div class="tip"><code>Images</code><span>Try image search for photos and posters, then check the caption for a date and a source.</span></div>
+      <div class="tip"><code>Wikipedia</code><span>It is a map, not the destination. Scroll to <b>References</b> and follow those links to the real evidence.</span></div>
+      <div class="tip"><code>No sign-in</code><span>If a site asks you to log in, skip it. There is always another source.</span></div>
+    </div>
+    <div class="panel">
+      <h3 id="linksTitle">Good places to start</h3>
+      <p style="color:var(--muted);font-size:15.5px">Links open in a new tab. None of them needs an account.</p>
+      <div class="links" id="linksBox"></div>
+      <p class="also" id="alsoBox" hidden></p>
+    </div>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 4 (the evidence log)</b><p>For each source: what is it, who made it and when, why they made it, and what it <i>cannot</i> tell you.</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 4 · 12 min</h4>
+    <ul>
+      <li>Primary vs secondary (3 min): the page teaches the quick rule first, then the sharper one. A source is primary or secondary <i>for a question</i>: a trench diary is primary for trench life but secondary for the Tsar's 1905 reign; a crime report is secondary for the crime but primary for the newspaper and its editors. Expect a good argument about edge cases (a participant's memoir written decades later). Reward the reasoning, not the label.</li>
+      <li>Add a line that <b>primary does not mean reliable</b> and <b>secondary does not mean useless</b>. Both still get the three detective questions.</li>
+      <li>The "probably out there / harder to find" panel changes with the departure. For a wildcard trip it adjusts to the year typed on the pass. Treat it as informed guesswork, not a promise.</li>
+      <li>Hunt (8 min): watch for Wikipedia-only research and point to the references. Check students are noting <i>dates</i> on sources.</li>
+      <li>If a student cannot find a primary source, praise it: "Why might there be none?" leads into who could write, who was recorded, and who kept records.</li>
+      <li>This is the raw material for Paper 1 (content, context) and for the IA (choosing and analysing sources).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= GATE 5 -->
+<section class="gate" id="gate5">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>5</b></div>
+    <div><span class="when">MINUTES 32–40 · LENS SWITCH</span><h2>Whose history are you getting?</h2></div>
+  </div>
+  <p class="brief">Every history you read has a lens: a decision about what is worth noticing. Change the lens and the same place and time looks different. Tap a lens to see what it reveals, and what it hides.</p>
+
+  <div class="grid3" id="lenses" style="margin-top:20px"></div>
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <button type="button" class="btn primary" id="spin">Can't choose? Spin the lens</button>
+    <span id="spinOut" style="font-weight:700" aria-live="polite"></span>
+  </div>
+
+  <div class="panel tint-teal" style="margin-top:18px">
+    <h3>Your two-minute experiment</h3>
+    <ol class="plain-list">
+      <li>Be honest: which lens did your first search results use?</li>
+      <li>Pick <b>two different lenses</b>. Search again for <span class="ph" data-tpl="{PY}"></span> with each in mind.</li>
+      <li>Find one detail per lens. Which lens told you the most? What did each one leave out?</li>
+    </ol>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 5</b><p>Write your two lenses, one detail from each, and one thing each lens hides.</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 5 · 8 min</h4>
+    <ul>
+      <li>Ask "which lens dominated your search results?" Many will say Big Names. Follow with: who wrote the records, and who could?</li>
+      <li>This is where content meets concepts: what was significant, for whom, and what changed for whom.</li>
+      <li>Two or three students share the detail they found with the second lens.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= GATE 6 -->
+<section class="gate" id="gate6">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>6</b></div>
+    <div><span class="when">MINUTES 40–52 · THE CLASH</span><h2>Find the argument</h2></div>
+  </div>
+  <p class="brief">History is not just facts. It is arguments about what the facts mean. Two accounts of the same thing can disagree, and working out <i>why</i> is half the skill.</p>
+
+  <div class="four" style="margin-top:20px">
+    <div><b>Different evidence</b><span>They used different sources, or different parts of the record.</span></div>
+    <div><b>Different lens</b><span>They cared about different things: leaders, workers, money, ideas.</span></div>
+    <div><b>Different time</b><span>They wrote in different eras, with different values and questions.</span></div>
+    <div><b>Different purpose</b><span>One wanted to persuade, another to record, another to sell.</span></div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h3>Spot the reason (2 minutes)</h3>
+    <p style="color:var(--muted)" id="matchIntro"></p>
+    <div id="matcher"></div>
+  </div>
+
+  <div class="panel tint-signal" style="margin-top:18px">
+    <h3>Your mission: find a real clash</h3>
+    <p style="font-size:18px">Find <b>two accounts</b> of <span class="ph" data-tpl="{PY}"></span> that disagree, or emphasise very different things. Then decide <i>why</i> they differ and which you trust more.</p>
+    <div class="grid2">
+      <div>
+        <div class="tip"><code class="ph" data-search="{P} {Y} debate"></code><span>Add <i>debate, controversy, myth, "historians disagree"</i> to your topic.</span></div>
+        <div class="tip"><code>vs</code><span>Compare a museum page with a documentary, or a national history with another country's view.</span></div>
+        <div class="tip"><code>then/now</code><span>Compare something from the time with a modern historian.</span></div>
+      </div>
+      <div id="clashBox"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h3>Now give your verdict</h3>
+    <p class="verdict">I think <u>_______</u> because <u>_______</u>, but <u>_______</u> makes it more complicated.</p>
+    <p style="color:var(--muted);margin:10px 0 0">A good answer has a because and a but. That is what an argument looks like.</p>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 6</b><p>Record Claim A and Claim B, tick why they differ, say which you trust more, then write your because…but verdict.</p></div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Gate 6 · 12 min</h4>
+    <ul>
+      <li>Matcher (3 min): these have a "best" answer but accept discussion. Time and purpose are the ones students under-use.</li>
+      <li>Hunt (7 min): if a student cannot find a clash, hand them one of the famous clashes. Two or three groups share quickly at the end.</li>
+      <li>Verdict (2 min): push for the "but". It is the difference between an opinion and an argument, and it mirrors what Paper 3 rewards.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================= ARRIVALS -->
+<section class="gate" id="gate7">
+  <div class="gate-head">
+    <div class="gate-code"><span>GATE</span><b>&#10003;</b></div>
+    <div><span class="when">MINUTES 52–60 · ARRIVALS</span><h2>Landing: redraw your picture</h2></div>
+  </div>
+  <p class="brief">Back in the classroom. Look at the picture you had of <span class="ph" data-tpl="{PY}"></span> at Gate 1. What would you change now?</p>
+
+  <div class="postcard" id="postcard">
+    <div class="pc-img" id="pcImg"></div>
+    <div class="pc-side">
+      <div class="pc-stamp" aria-hidden="true"><span>RETURNED FROM</span><b id="pcYear"></b><span id="pcPlace"></span></div>
+      <h3>A postcard from <span class="ph" data-tpl="{PY}"></span></h3>
+      <p class="pc-cap" id="pcCap"></p>
+      <p style="margin:0 0 6px"><b>Look closely, like a historian:</b></p>
+      <ul class="plain-list">
+        <li>Who made this, and when?</li>
+        <li>Is it primary or secondary, and for which question?</li>
+        <li>What is outside the frame?</li>
+        <li class="pc-extra" id="pcLook" hidden></li>
+      </ul>
+      <div class="tnote" data-teacher id="pcNote" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h3>Your 3–2–1 landing card</h3>
+    <div class="three-two-one">
+      <div class="tint-teal"><span class="n">3</span><b>things you are now fairly sure of</b><br>and the evidence for each</div>
+      <div class="tint-gold"><span class="n">2</span><b>things historians could argue about</b><br>and why</div>
+      <div class="tint-signal"><span class="n">1</span><b>question still bugging you</b><br>the one you would research next</div>
+    </div>
+  </div>
+
+  <div class="handout">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div><b>Field Notes · Box 7</b><p>Redraw or rewrite your picture, complete the 3–2–1, and hand in your ticket on the way out.</p></div>
+  </div>
+
+  <div style="margin-top:28px">
+    <button type="button" class="btn primary" id="revealBtn" aria-expanded="false">Show me what I just did</button>
+    <div id="revealBox" hidden>
+      <div class="reveal-grid">
+        <div><span class="ib">Historical inquiry questions</span><b>You asked a question worth researching</b><span class="d">You upgraded "what was it like?" into something evidence could answer.</span></div>
+        <div><span class="ib">Historical sources</span><b>You hunted for evidence and questioned it</b><span class="d">Who made it, why, and what is missing?</span></div>
+        <div><span class="ib">Historical concepts</span><b>You used the big thinking tools</b><span class="d">Cause and consequence, continuity and change, perspectives, significance.</span></div>
+        <div><span class="ib">Historical content</span><b>You gathered real detail</b><span class="d">Facts about a specific place and time that support your ideas.</span></div>
+        <div><span class="ib">Historical arguments</span><b>You weighed a clash of interpretations</b><span class="d">And made a judgement with a because and a but.</span></div>
+        <div><span class="ib">Historical inquiry contexts</span><b>You chose a slice of the past</b><span class="d">In this course you will study four kinds: a focused study, a thematic study, a regional study, and your own investigation.</span></div>
+      </div>
+      <div class="big-sum">That was the whole IB History course in miniature. Every paper, and your own investigation, is a bigger version of <em>ask, find, question, compare, argue</em>.</div>
+    </div>
+  </div>
+
+  <div class="tnote" data-teacher>
+    <h4>Teacher · Arrivals · 8 min</h4>
+    <ul>
+      <li>Let them write the 3–2–1 first. Reveal only afterwards so the "you just did IB skills" moment lands.</li>
+      <li>Keep two minutes for collecting handouts. Read a few 3–2–1 cards later: they show you who engaged with what.</li>
+      <li>The six panels correspond to the six elements of the IB assessment model, in plain language. Refer back to them when you introduce each paper.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="footer">
+  <span>IB History · First assessment 2028 · Lesson one</span>
+  <button type="button" class="linkbtn" id="teacherBtn" aria-pressed="false">Teacher view</button>
+</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------------------------------------- schedule + step-by-step nav */
+  var GATES = [
+    { id: 'gate1', n: '1', short: 'Board', label: 'Gate 1 · Board', line: 'Choose your departure and fill in your pass', start: 0, end: 7 },
+    { id: 'gate2', n: '2', short: 'Reality', label: 'Gate 2 · Reality check', line: 'Where did your picture come from?', start: 7, end: 12 },
+    { id: 'gate3', n: '3', short: 'Forge', label: 'Gate 3 · Question Forge', line: 'Turn "what was it like?" into a real research question', start: 12, end: 20 },
+    { id: 'gate4', n: '4', short: 'Detective', label: 'Gate 4 · Source Detective', line: 'Find evidence made at the time, and evidence made later', start: 20, end: 32 },
+    { id: 'gate5', n: '5', short: 'Lens', label: 'Gate 5 · Lens Switch', line: 'Whose history are you getting?', start: 32, end: 40 },
+    { id: 'gate6', n: '6', short: 'Clash', label: 'Gate 6 · The Clash', line: 'Find two accounts that disagree, then give a verdict', start: 40, end: 52 },
+    { id: 'gate7', n: '✓', short: 'Arrivals', label: 'Arrivals', line: 'Land, and redraw your picture', start: 52, end: 60 }
+  ];
+  function mm(n) { return (n < 10 ? '0' : '') + n; }
+  var GATE_IDS = GATES.map(function (g) { return g.id; });
+  var gateEls = GATES.map(function (g) { return document.getElementById(g.id); });
+  var screen0 = $('#screen0');
+  var stepIdx = -1, maxIdx = -1, teacherOn = false, paceIdx = -1;
+
+  var pills = $('#pills');
+  GATES.forEach(function (g) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'pill'; b.setAttribute('data-jump', g.id); b.setAttribute('aria-label', g.label);
+    b.innerHTML = g.n + '<small>' + g.short + '</small>';
+    pills.appendChild(b);
+  });
+  var board = $('#board');
+  GATES.forEach(function (g) {
+    var r = document.createElement('button');
+    r.type = 'button'; r.className = 'board-row'; r.setAttribute('data-jump', g.id);
+    r.innerHTML = '<span class="t">' + mm(g.start) + '–' + mm(g.end) + '</span><span class="g">' + (g.n === '✓' ? 'ARR' : 'GATE ' + g.n) + '</span><span class="n"><b>' + (g.n === '✓' ? 'Arrivals' : g.label.split(' · ')[1]) + '</b><span>' + g.line + '</span></span>';
+    board.appendChild(r);
+  });
+
+  function tripReady() { return !!(curDep || (getP() && getY())); }
+  function unlockedUpTo() { return teacherOn ? GATES.length - 1 : Math.max(maxIdx, 0); }
+  function drawNavState() {
+    var lim = unlockedUpTo();
+    $$('.pill, .board-row').forEach(function (el) {
+      var idx = GATE_IDS.indexOf(el.getAttribute('data-jump'));
+      var locked = idx > lim;
+      el.disabled = locked;
+      el.title = locked ? 'Locked until you reach it' : '';
+      if (idx === stepIdx) el.setAttribute('aria-current', 'true'); else el.removeAttribute('aria-current');
+      el.classList.toggle('pace', idx === paceIdx);
+    });
+  }
+  function refreshNav() {
+    var n = $('#navNext0');
+    if (n) n.setAttribute('aria-disabled', (!tripReady() && !teacherOn) ? 'true' : 'false');
+  }
+  function showStep(i) {
+    if (i > unlockedUpTo()) return;
+    stepIdx = i; if (i > maxIdx) maxIdx = i;
+    screen0.hidden = i !== -1;
+    gateEls.forEach(function (el, k) {
+      var on = k === i;
+      el.hidden = !on;
+      if (on) { el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter'); }
+    });
+    drawNavState(); refreshNav();
+    $$('.navhint').forEach(function (h) { h.textContent = ''; });
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  }
+  GATES.forEach(function (g, i) {
+    var nav = document.createElement('div'); nav.className = 'gatenav';
+    var back = document.createElement('button');
+    back.type = 'button'; back.className = 'btn'; back.textContent = i === 0 ? '← Back to check-in' : '← Back';
+    back.addEventListener('click', function () { showStep(i - 1); });
+    nav.appendChild(back);
+    if (i < GATES.length - 1) {
+      var next = document.createElement('button');
+      next.type = 'button'; next.className = 'btn primary'; next.id = 'navNext' + i;
+      var nx = GATES[i + 1];
+      next.textContent = 'Next: ' + (nx.n === '✓' ? 'Arrivals' : 'Gate ' + nx.n + ' · ' + nx.short) + ' →';
+      var hint = document.createElement('p'); hint.className = 'navhint'; hint.setAttribute('aria-live', 'polite');
+      next.addEventListener('click', function () {
+        if (i === 0 && !tripReady() && !teacherOn) { hint.textContent = 'Board a departure first, or type your own place and year on the pass.'; return; }
+        if (i + 1 > maxIdx) maxIdx = i + 1;
+        showStep(i + 1);
+      });
+      nav.appendChild(next); nav.appendChild(hint);
+    }
+    gateEls[i].appendChild(nav);
+  });
+  document.addEventListener('click', function (e) {
+    var j = e.target.closest('[data-jump]');
+    if (!j || j.disabled) return;
+    var idx = GATE_IDS.indexOf(j.getAttribute('data-jump'));
+    if (idx >= 0) showStep(idx);
+  });
+
+  /* ---------------------------------------------- class clock */
+  var TOTAL = 60 * 60;
+  var remaining = TOTAL, clockRunning = false, timerId = null;
+  var clockTime = $('#clockTime'), clockNow = $('#clockNow'), clockBtn = $('#clockBtn');
+  function drawClock() {
+    var m = Math.floor(remaining / 60), s = remaining % 60;
+    clockTime.textContent = mm(m) + ':' + mm(s);
+    var elapsedMin = (TOTAL - remaining) / 60;
+    if (remaining === TOTAL && !clockRunning) { clockNow.textContent = 'Class clock'; paceIdx = -1; drawNavState(); return; }
+    if (remaining <= 0) { clockNow.textContent = 'Landed. Well done.'; paceIdx = GATES.length - 1; drawNavState(); return; }
+    var gi = 0;
+    GATES.forEach(function (x, k) { if (elapsedMin >= x.start && elapsedMin < x.end) gi = k; });
+    clockNow.textContent = 'Aim for ' + GATES[gi].label;
+    paceIdx = gi; drawNavState();
+  }
+  function tick() {
+    remaining -= 1;
+    if (remaining <= 0) { remaining = 0; stopClock(); }
+    drawClock();
+  }
+  function stopClock() { clockRunning = false; clearInterval(timerId); timerId = null; clockBtn.textContent = 'Resume'; }
+  clockBtn.addEventListener('click', function () {
+    if (remaining <= 0) return;
+    if (clockRunning) { stopClock(); clockBtn.textContent = 'Resume'; return; }
+    clockRunning = true; clockBtn.textContent = 'Pause';
+    timerId = setInterval(tick, 1000); drawClock();
+  });
+  $('#clockReset').addEventListener('click', function () {
+    clockRunning = false; clearInterval(timerId); timerId = null; remaining = TOTAL; clockBtn.textContent = 'Start'; drawClock();
+  });
+  drawClock();
+
+  /* ---------------------------------------------- departures: everything that changes with the choice lives here */
+  var DEPS = [
+    {
+      place: 'Tokyo', when: '1868', region: 'EAST ASIA',
+      hook: 'A teenage emperor, a fallen shogun, and a city that has just changed its name from Edo to Tokyo.',
+      big: 'A revolution, or the old elite in new clothes?',
+      course: 'Meiji Restoration · Paper 1 focused study example',
+      ladder: ['In what year was the Meiji Restoration announced?', 'What was Tokyo like in 1868?', 'Why did the samurai lose their power after 1868?', 'Who gained the most from the Meiji Restoration, and who lost?'],
+      ideas: ['the end of the shogunate', 'the abolition of the samurai class', 'the Charter Oath (1868)', 'the Iwakura Mission (1871–73)', 'the new conscript army (1873)', 'the 1889 Constitution'],
+      yes: ['Woodblock prints and early photographs of Edo and Tokyo', 'Official documents in translation, such as the Charter Oath (1868) and the 1889 Constitution', 'Accounts by foreign visitors and diplomats, often in English', 'Maps and museum objects'],
+      hard: ['Everyday voices: most surviving diaries and letters are in Japanese, so look at what the prints show, or for translated collections', 'The losers: former samurai and supporters of the shogun appear thinly, and often through the winners’ eyes', 'A neutral view: much of what survives was made by the new government or by outsiders with their own agenda'],
+      links: [
+        ['MIT Visualizing Cultures', 'Image-based units on Japan from the 1850s onwards', 'https://visualizingcultures.mit.edu/'],
+        ['Library of Congress', 'Search “Meiji” or “Yokohama” for prints and photographs', 'https://www.loc.gov/'],
+        ['British Museum collection', 'Search “Meiji” for prints and objects with dates', 'https://www.britishmuseum.org/collection'],
+        ['Wikimedia Commons', 'Dated photographs. Always read the source line', 'https://commons.wikimedia.org/']
+      ],
+      lens: [
+        'Emperor Meiji and the leaders of the new government, such as Ōkubo, Saigō and Itō.',
+        'What did a former samurai, a merchant and a farmer notice changing in daily life?',
+        'Who paid for the changes? Look at the land tax reform (1873) and the end of samurai stipends.',
+        'Western clothes, new schools, and the argument about what should stay “Japanese”.',
+        'How the new government replaced the old domains with prefectures (1871).',
+        'What did foreign visitors and diplomats in Yokohama write about Japan?'
+      ],
+      clash: ['Was the Meiji Restoration a real revolution, or a change at the top that kept the old power structure?', 'Did Western pressure force Japan to change, or was change already under way?', 'Was Japan’s rapid change a triumph, or did ordinary people pay the price?']
+    },
+    {
+      place: 'Kampala', when: '1972', region: 'EAST AFRICA',
+      hook: 'In August 1972 thousands of families are told to leave Uganda within 90 days.',
+      big: 'Justice, racism, or power politics?',
+      course: 'Idi Amin · Paper 2 authoritarian state example',
+      ladder: ['When did Amin order Uganda’s Asians to leave?', 'What was Kampala like in 1972?', 'Why did Amin expel Uganda’s Asian community in 1972?', 'Who gained and who lost from the expulsion, and did it help ordinary Ugandans?'],
+      ideas: ['the 1971 coup', 'the 90-day expulsion order', 'the “economic war”', 'the seizure of Asian businesses', 'the arrival of refugees in Britain', 'the rise of the army'],
+      yes: ['British newspaper reports and government papers (the UK National Archives has a free lesson pack with a Cabinet extract and a Commons debate)', 'Photographs of families arriving in Britain', 'Oral histories from expelled families (try searching “Ugandan Asian oral history”)', 'Amin’s own speeches, as reported in the press'],
+      hard: ['Black Ugandans’ own voices from inside the country: fear and censorship meant many things were never written down', 'Records from inside Amin’s government are hard to find online', 'A balanced view: most sources you find come from outside Uganda, or from the people who left']
+      ,
+      links: [
+        ['UK National Archives lesson pack', 'Cabinet extract, Commons debate and refugee testimonies (PDF)', 'https://cdn.nationalarchives.gov.uk/documents/education/ugandan-asians.pdf'],
+        ['Open University: a 1972 news report', 'The exile of Ugandan Asians as reported at the time', 'https://www.open.edu/openlearncreate/mod/oucontent/view.php?id=162942&section=2.7'],
+        ['Internet Archive', 'Old magazines and newspapers. Search “Uganda 1972”', 'https://archive.org/'],
+        ['Wikimedia Commons', 'Dated photographs. Always read the source line', 'https://commons.wikimedia.org/']
+      ],
+      lens: [
+        'Amin’s speeches and decisions, and what he said were his reasons.',
+        'What happened to a family given 90 days to leave, and to the neighbours and workers who stayed?',
+        'Who owned the shops and businesses, and who took them over afterwards?',
+        'Stereotypes about Asians in Uganda: where did they come from, and who used them?',
+        'How the army and the decrees enforced the order.',
+        'How British officials and newspapers described what was happening.'
+      ],
+      clash: ['Why did Amin expel the Asians: economic justice, racism, or a bid to stay in power?', 'Was Amin a buffoon, or a calculating ruler?', 'Who is responsible for what happened to Uganda in the 1970s: Amin alone, or others too?']
+    },
+    {
+      place: 'Havana', when: '1959', region: 'THE CARIBBEAN',
+      hook: 'On 1 January the president flees the island. Within days rebels are in the capital, and everyone is asking what happens next.',
+      big: 'Liberation, or a new dictatorship?',
+      course: 'Castro · Paper 2 (if your second regime) and Paper 3 Cold War in the Americas',
+      ladder: ['On what date did Batista flee Cuba?', 'What was Havana like in January 1959?', 'Why did so many Cubans support Castro in 1959?', 'Was the Cuban Revolution a liberation, or the start of a new dictatorship?'],
+      ideas: ['the Moncada attack (1953)', 'the fall of Batista', 'the land reform of 1959', 'the takeover of US-owned companies', 'the literacy campaign (1961)', 'the Bay of Pigs (1961)'],
+      yes: ['Castro’s speeches in English translation, such as “History Will Absolve Me” (1953)', 'US government documents (the Foreign Relations of the United States series is free online)', 'Photographs and newsreels of the rebels entering Havana', 'Magazine and newspaper coverage from Cuba and the US'],
+      hard: ['Ordinary Cubans, whether they cheered or feared the revolution', 'Batista’s supporters and those who left: mostly told later, from exile', 'Cuban government archives, which are hard to reach from outside'],
+      links: [
+        ['Castro: History Will Absolve Me', 'His 1953 trial speech, full text', 'https://www.marxists.org/history/cuba/archive/castro/1953/10/16.htm'],
+        ['US Foreign Relations, Cuba 1958–60', 'What US diplomats reported and decided', 'https://history.state.gov/historicaldocuments/frus1958-60v06'],
+        ['Wilson Center Digital Archive', 'Translated Cold War documents from many countries', 'https://digitalarchive.wilsoncenter.org/'],
+        ['Library of Congress', 'Search “Cuba 1959” for photographs and newspapers', 'https://www.loc.gov/']
+      ],
+      lens: [
+        'Castro, Che Guevara, Batista and US President Eisenhower.',
+        'What did a sugar worker, a student and a shopkeeper hope or fear in 1959?',
+        'Sugar, land and US-owned companies: who owned Cuba’s wealth?',
+        'Songs, slogans and posters: how did the rebels tell their story?',
+        'How did the new government treat Batista’s officials, the press and its rivals?',
+        'What did US journalists and diplomats report from the island?'
+      ],
+      clash: ['Was Castro a communist from the start, or pushed that way by US hostility?', 'Was Batista’s fall down to Castro’s rebels, or to his own collapsing support?', 'Was the revolution liberation for Cubans, or the start of a new dictatorship?']
+    },
+    {
+      place: 'Guatemala City', when: '1954', region: 'CENTRAL AMERICA',
+      hook: 'June 1954: a government that has just redistributed land is forced out. Whose side was everyone on?',
+      big: 'Fighting communism, or protecting profits?',
+      course: 'Cold War in the Americas · Paper 3 example subtopic',
+      ladder: ['Who was president of Guatemala before the 1954 coup?', 'What was Guatemala City like in 1954?', 'Why did the United States want President Árbenz removed?', 'Was the 1954 coup about stopping communism, or about money and power?'],
+      ideas: ['the land reform (Decree 900)', 'the United Fruit Company', 'the CIA operation of 1954', 'Árbenz’s resignation', 'the role of Guatemala’s army', 'Cold War fear of communism'],
+      yes: ['US government documents (Foreign Relations of the United States, 1952–1954, Guatemala volume, is free online)', 'Declassified US files published by the National Security Archive', 'Newspaper coverage from the US and Latin America', 'Photographs and political cartoons'],
+      hard: ['Maya and rural voices: the land reform was largely about them, yet they rarely appear as authors', 'Árbenz’s own account, in his own words', 'Calm accounts: most early sources were shaped by the Cold War, and both sides had reasons to exaggerate'],
+      links: [
+        ['US Foreign Relations, Guatemala 1952–54', 'The official record of US decisions', 'https://history.state.gov/historicaldocuments/frus1952-54Guat'],
+        ['National Security Archive', 'Declassified US documents. Search “Guatemala 1954”', 'https://nsarchive.gwu.edu/'],
+        ['Wilson Center Digital Archive', 'Translated Cold War documents from many countries', 'https://digitalarchive.wilsoncenter.org/'],
+        ['Library of Congress', 'Search “Guatemala 1954” for photographs and newspapers', 'https://www.loc.gov/']
+      ],
+      lens: [
+        'Árbenz, Eisenhower, the CIA planners and Castillo Armas, who led the invasion.',
+        'What did a Maya farmer or a banana plantation worker expect from land reform?',
+        'Who owned the land, and what did the United Fruit Company stand to lose?',
+        'Radio and leaflets: the CIA ran a “Voice of Liberation” station during the operation.',
+        'How the army decided the outcome, and why Árbenz resigned.',
+        'How did US newspapers and Latin American writers describe the coup?'
+      ],
+      clash: ['Was the 1954 coup about stopping communism, or about protecting a US company’s profits?', 'Was Árbenz a communist, or a reformer?', 'Did the coup help cause Guatemala’s later civil war?']
+    },
+    {
+      place: 'Moscow', when: '1991', region: 'EURASIA',
+      hook: '25 December: the red flag comes down over the Kremlin. A superpower ends with a television speech.',
+      big: 'Why did it end, and could it have gone differently?',
+      course: 'Russia and the USSR · ties into the Cold War thread',
+      ladder: ['When did Gorbachev resign?', 'What was Moscow like in December 1991?', 'Why did the Soviet Union collapse in 1991?', 'Who deserves the credit, or the blame, for the end of the USSR?'],
+      ideas: ['the failed coup of August 1991', 'Gorbachev’s reforms (glasnost and perestroika)', 'the rise of Boris Yeltsin', 'the independence of the republics', 'shortages in the Soviet economy', 'the end of the Cold War'],
+      yes: ['Gorbachev’s resignation speech (25 December 1991), full text online', 'Newspaper, radio and television reports from around the world', 'Declassified US and Soviet records (the National Security Archive has a briefing book on 1991)', 'Photographs and film of the flag coming down'],
+      hard: ['Ordinary Soviet citizens: what did they think that day? Look for oral histories, but expect patchy translations', 'The view from the republics (Ukraine, Kazakhstan, the Baltic states), which often comes through Russian or Western sources', 'Russian archives, which can be hard to reach from outside'],
+      links: [
+        ['Gorbachev’s resignation speech', 'The speech of 25 December 1991, full text', 'https://www.marxists.org/archive/gorbachev/1991/december-25.htm'],
+        ['National Security Archive: the end of the USSR', 'Declassified documents from 1991', 'https://nsarchive.gwu.edu/briefing-book/russia-programs/2021-12-21/end-soviet-union-1991'],
+        ['Seventeen Moments in Soviet History', 'Texts, images and audio, including the end of the USSR', 'https://soviethistory.msu.edu/'],
+        ['Wikimedia Commons', 'Dated photographs. Always read the source line', 'https://commons.wikimedia.org/']
+      ],
+      lens: [
+        'Gorbachev, Yeltsin, and the men who tried to seize power in August.',
+        'Queues and empty shops: how did ordinary Muscovites feel that December?',
+        'A broken economy: shortages, prices, and who could still get goods.',
+        'Jokes, rock music and newspapers: what did glasnost let people say?',
+        'How power moved from the Kremlin to the republics.',
+        'How did foreign journalists and leaders, such as US President George H. W. Bush, describe the end?'
+      ],
+      clash: ['Why did the USSR end: Gorbachev’s reforms, Western pressure, or problems in the Soviet system itself?', 'Was 1991 inevitable, or could the USSR have survived?', 'Was the end of the USSR a triumph or a tragedy? Who would say which?']
+    }
+  ];
+  var GENERIC_LINKS = [
+    ['Library of Congress', 'Photos, maps, newspapers, manuscripts', 'https://www.loc.gov/'],
+    ['Google Arts & Culture', 'Museum objects from around the world', 'https://artsandculture.google.com/'],
+    ['Wikimedia Commons', 'Dated images with source information', 'https://commons.wikimedia.org/'],
+    ['Europeana', 'Archives and museums across Europe', 'https://www.europeana.eu/'],
+    ['Internet Archive', 'Old books, magazines, recordings', 'https://archive.org/'],
+    ['British Museum collection', 'Objects with dates and descriptions', 'https://www.britishmuseum.org/collection']
+  ];
+  var GENERIC_CLASHES = ['Christopher Columbus: hero or villain?', 'Did the Industrial Revolution make life better for workers?', 'Who was to blame for the First World War?', 'Why did the Roman Republic fall?'];
+
+  /* ---------------------------------------------- more per-departure content: sources, clashes, extra influences, landing picture */
+  var EXTRA = {
+    'Tokyo': {
+      id: 'tokyo',
+      infl: [['The Last Samurai (film)', 0], ['Anime & manga', 0]],
+      landing: { img: 'japan.jpg', alt: 'Colour woodblock print of a Tokyo railway station: a steam locomotive at the platform, a green and stone station building, railway staff in dark uniforms and passengers in Western clothes.', cap: 'A railway station in Tokyo, shown in a colour woodblock print from the Meiji period.', credit: '', look: 'Who is dressed in Western clothes, and who is not? How does the artist want you to feel about the railway?', note: 'Check the print details against your source. I read the Japanese title as the Shimbashi railway station and the signature as Hiroshige III (a 1870s series on Tokyo’s modern sights). Add the museum credit to landing.credit.' },
+      sort: [
+        { t: 'A letter written in 1875 by a former samurai, describing how the government’s new policies are hurting his family’s income.', qs: [
+          { q: 'How did ordinary former samurai experience the end of their privileges?', a: 'p', why: 'He is living it and writing at the time. It is still one man’s view, and he may be exaggerating to win sympathy.' },
+          { q: 'Why did the government decide to end samurai stipends?', a: 's', why: 'He was not in the room. He is guessing at the government’s reasons from the outside. For this question, look for government records.' }
+        ] },
+        { t: 'A report written in 1868 by a British diplomat in Japan, about the fighting between supporters of the shogun and supporters of the emperor.', qs: [
+          { q: 'How did foreign diplomats judge the new government and decide how to respond?', a: 'p', why: 'This is the diplomat’s own thinking and decisions, written as they happened.' },
+          { q: 'What was the mood among ordinary people in Edo?', a: 's', why: 'A foreign official in Yokohama is passing on what he heard second-hand about people he barely met.' }
+        ] },
+        { t: 'A museum website text, written in 2015, explaining a set of Meiji woodblock prints.', qs: [
+          { q: 'What did artists in the 1870s choose to show about modern Japan?', a: 's', why: 'The prints are primary for this. The website text is a modern interpretation of them, so it is secondary.' },
+          { q: 'How do museums today present Meiji Japan to visitors?', a: 'p', why: 'Now the text is the evidence: its choices and words show how museums in 2015 tell the story.' }
+        ] },
+        { t: 'A newspaper article printed in Tokyo in 1873 about the new conscription law.', qs: [
+          { q: 'How did newspapers and their editors present the new law to readers?', a: 'p', why: 'The article itself is the evidence: its tone and choices show what the paper wanted readers to think.' },
+          { q: 'How did farming families react to conscription?', a: 's', why: 'The reporter is relaying what he heard from a distance. Petitions and letters from the families themselves would be primary.' }
+        ] },
+        { t: 'A history of the Meiji Restoration written by a modern historian in the 1990s.', qs: [
+          { q: 'Why did the Meiji Restoration happen?', a: 's', why: 'A later interpretation built from other people’s evidence.' },
+          { q: 'How did historians in the 1990s interpret Japan’s modernisation?', a: 'p', why: 'Now the book itself is what you study: what it stresses and what questions it asks show its own time.' }
+        ] }
+      ],
+      match: [
+        { s: 'A history written in 1910 praises the Meiji government for making Japan strong. A history written in 1990 asks who paid for that strength.', a: 't', why: 'Each writer’s time shaped what seemed important: national pride in one, the cost to ordinary people in the other. Historians write in their own time too.' },
+        { s: 'One historian reads government decrees and sees a well-planned transformation. Another reads petitions from farmers and sees anger and disruption.', a: 'e', why: 'Different evidence, different story. Decrees show what leaders intended. Petitions show what people experienced.' },
+        { s: 'A government-friendly newspaper in 1873 calls the new army “a proud national duty”. A farmer’s petition calls it a heavy burden on his family.', a: 'p', why: 'One was written to persuade the public, the other to plead a case. Ask: what did each author want the reader to do?' },
+        { s: 'One book about the Restoration is about Ōkubo, Saigō and Itō and their decisions. Another is about what merchants, farmers and former samurai earned, ate and feared.', a: 'l', why: 'Same event, a different idea of who matters. That is a lens.' }
+      ]
+    },
+    'Kampala': {
+      id: 'kampala',
+      infl: [['The Last King of Scotland (film)', 0], ['News stories about Africa', 0]],
+      landing: { img: 'uganda.jpg', alt: 'Black and white photograph of Idi Amin in a pinstriped three-piece suit speaking into several microphones, one arm stretched out, with an aide standing at the left edge.', cap: 'Idi Amin speaking at a public event.', credit: '', look: 'Who is he speaking to? What is the photographer showing, and what is left out of the frame?', note: 'The date and place of this photograph are not stated. Confirm them before you tell students it is from 1972, and add the credit.' },
+      sort: [
+        { t: 'A British newspaper report from August 1972, written in London, on Amin’s announcement that Uganda’s Asians must leave.', qs: [
+          { q: 'How did the British press present the expulsion to its readers?', a: 'p', why: 'The article itself is the evidence: its headline, tone and choices show what British readers were told.' },
+          { q: 'What did Amin actually say, and what did he mean?', a: 's', why: 'The reporter is in London, relaying agency reports. For Amin’s own words, look for a recording or a transcript of the speech.' }
+        ] },
+        { t: 'An interview recorded in 2012 with a woman who was a child in a Ugandan Asian family expelled in 1972.', qs: [
+          { q: 'What was the expulsion like for a child in an expelled family?', a: 'p', why: 'She lived it. Forty years of memory shape what she says, so treat it as a real but filtered view.' },
+          { q: 'How many people were expelled, and how was the order organised?', a: 's', why: 'A child would learn these things later, from other people. For this question she is a second-hand voice.' }
+        ] },
+        { t: 'A British Cabinet paper from August 1972 discussing whether Britain must take Ugandan Asians who hold British passports.', qs: [
+          { q: 'How did the British government decide how to respond?', a: 'p', why: 'This is the decision-makers’ own discussion, written at the time.' },
+          { q: 'How did expelled families feel as they waited to leave?', a: 's', why: 'Ministers in London are guessing at feelings they did not witness. Family letters and interviews would be primary.' }
+        ] },
+        { t: 'A school textbook printed in 2005 with a chapter on Idi Amin’s Uganda.', qs: [
+          { q: 'Why did Amin expel the Asian community?', a: 's', why: 'A later summary, written by people who were not there, based on other evidence.' },
+          { q: 'How do textbooks in the 2000s portray Amin?', a: 'p', why: 'Now the textbook is the evidence: what it includes and leaves out shows how Amin is taught.' }
+        ] },
+        { t: 'A speech by Amin in 1972 explaining why Asians should leave, as printed in a Ugandan newspaper.', qs: [
+          { q: 'How did Amin justify the expulsion to his supporters?', a: 'p', why: 'His own argument, made at the time. Ask who it was meant for and what he hoped it would do.' },
+          { q: 'How did Uganda’s Asian families experience the 90-day deadline?', a: 's', why: 'Amin is describing people he was expelling, not living the deadline himself.' }
+        ] }
+      ],
+      match: [
+        { s: 'One historian relies on British government files and news reports. Another relies on interviews with expelled families.', a: 'e', why: 'Government files show how officials decided. Interviews show how families lived it. Each covers only part of the story.' },
+        { s: 'Amin’s government says the Asians harmed Uganda’s economy and must leave. A British newspaper editorial calls the order racist persecution.', a: 'p', why: 'Both were written to persuade an audience, one to justify a decision, the other to condemn it. Ask who each is writing for.' },
+        { s: 'One book explains the expulsion through Amin’s personality and decisions. Another explains it through the colonial economy, which had left much trade in the hands of one community.', a: 'l', why: 'Same event, a different idea of what matters most: a leader’s character or long-term structures. That is a lens.' },
+        { s: 'A newspaper in 1972 describes Amin as a strong leader putting Uganda first. A documentary in 2020 describes him as a brutal dictator.', a: 't', why: 'By 2020 historians could see all eight years of his rule, including the killings that followed, so their judgement is different. Time changes what we know and value.' }
+      ]
+    },
+    'Havana': {
+      id: 'havana',
+      infl: [['Films & TV set in Cuba', 0], ['Cuban music', 0.5]],
+      landing: { img: 'cuba.jpg', alt: 'Black and white photograph of Fidel Castro in fatigues and a cap speaking at a microphone, a white dove on his shoulder, with a bearded man in a wide-brimmed hat behind him.', cap: 'Fidel Castro speaking in Havana, January 1959.', credit: '', look: 'A dove is on his shoulder. Chance, or symbol? Does it matter for how the photo gets used?', note: 'Widely reproduced photograph of Castro’s speech in Havana in January 1959. The bearded man behind him is usually identified as Camilo Cienfuegos. Confirm the photographer and add the credit.' },
+      sort: [
+        { t: 'A US embassy report sent from Havana to Washington in January 1959, describing the arrival of Castro’s forces in the capital.', qs: [
+          { q: 'How did US officials judge Castro and decide how to respond?', a: 'p', why: 'This is the officials’ own view and thinking, written as events unfolded.' },
+          { q: 'What did ordinary Cubans think of the rebels?', a: 's', why: 'Diplomats are relaying what they heard from a limited circle. Letters, diaries and interviews from Cubans would be primary.' }
+        ] },
+        { t: 'A speech by Fidel Castro in 1959 about the land reform, printed in a newspaper the next day.', qs: [
+          { q: 'How did Castro explain and justify the land reform?', a: 'p', why: 'His own argument, made at the time. Ask who he was speaking to and what he wanted them to do.' },
+          { q: 'What was the land reform like for a small farmer in the countryside?', a: 's', why: 'Castro is describing people’s lives from the podium, not living them. Look for the farmers’ own accounts.' }
+        ] },
+        { t: 'A memoir published in 1990 by a former official of Batista’s government who left Cuba in 1959.', qs: [
+          { q: 'How did people on Batista’s side remember and explain the revolution?', a: 'p', why: 'He is one of those people. It is written with hindsight and exile in mind, so primary does not mean reliable.' },
+          { q: 'How did farmers in the countryside feel about the rebels?', a: 's', why: 'He was in the government and in the city, not in the countryside. This is a second-hand view.' }
+        ] },
+        { t: 'A history book published in 2011 by a US historian about the Cuban Revolution.', qs: [
+          { q: 'Why did Batista fall?', a: 's', why: 'A later interpretation built from other people’s evidence.' },
+          { q: 'How did American historians in 2011 interpret the revolution?', a: 'p', why: 'Now the book is what you study: its emphasis and questions show its own time and place.' }
+        ] },
+        { t: 'The front page of a Havana newspaper from 2 January 1959.', qs: [
+          { q: 'How did Cuban newspapers announce the fall of Batista?', a: 'p', why: 'The front page itself is the evidence: what it puts first and how it words it.' },
+          { q: 'What actually happened inside the presidential palace that night?', a: 's', why: 'Journalists were outside, piecing it together from rumours and statements. Accounts from people who were there would be primary.' }
+        ] }
+      ],
+      match: [
+        { s: 'A US newspaper in 1959 calls Castro’s rebels dangerous radicals. A Cuban rebel newspaper calls them liberators.', a: 'p', why: 'Each was written to win over its audience and to make the other side look bad. Ask who it was for.' },
+        { s: 'A book from 1962 says Castro betrayed a democratic revolution. A book from 2010, written after many documents were released, shows the US and Cuba pushing each other towards conflict.', a: 'e', why: 'New evidence changed the story. Historians can only use what has survived and been released.' },
+        { s: 'One account of 1959 is about Castro, Che and the rebel leaders. Another is about what sugar workers, women and students wanted from the new government.', a: 'l', why: 'Same year, a different idea of whose story matters. That is a lens.' },
+        { s: 'A textbook from 1965 treats the revolution as a Soviet gain. A textbook from 2015 treats it as a Cuban national story shaped by Cold War pressure.', a: 't', why: 'The Cold War was the lens of the 1960s. Later writers had different questions and could look back at the whole story.' }
+      ]
+    },
+    'Guatemala City': {
+      id: 'guatemala',
+      infl: [['Cold War films & games', 0], ['News stories about Latin America', 0]],
+      landing: { img: 'guatemala.jpg', alt: 'Sepia photograph of a banana plantation: a worker carrying a huge bunch of bananas, piles of harvested bunches, and mules loaded with bananas on a forest path, with a man in a hat watching.', cap: 'Bananas being harvested on a plantation in Central America.', credit: '', look: 'Who is carrying the bananas, and who is watching? Who might have wanted this photograph taken, and when was it taken?', note: 'This looks like an early-20th-century plantation photograph, decades before 1954, and the exact country is not stated. Use that: it is evidence about the banana industry, not about the 1954 coup. Confirm the source and add the credit.' },
+      sort: [
+        { t: 'A US government cable from June 1954, discussing how to handle the crisis in Guatemala.', qs: [
+          { q: 'How did US officials talk about Guatemala, and what did they want?', a: 'p', why: 'The officials’ own words, written for other officials at the time.' },
+          { q: 'What did Guatemalan farmers think of the land reform?', a: 's', why: 'These officials were not asking farmers. This is a second-hand view of people they did not hear from.' }
+        ] },
+        { t: 'A radio speech by President Árbenz in June 1954, announcing his resignation.', qs: [
+          { q: 'How did Árbenz explain his resignation to the country?', a: 'p', why: 'His own explanation, made at the time. Ask what he chose to say, and what he left out.' },
+          { q: 'What was the CIA doing behind the scenes?', a: 's', why: 'Árbenz only knew part of it. For this question, US government files and later investigations are stronger.' }
+        ] },
+        { t: 'A US newspaper article from 1954 reporting that Communists were taking over Guatemala.', qs: [
+          { q: 'How did the US press present Guatemala to Americans in 1954?', a: 'p', why: 'The article is the evidence: its headline, sources and language show what readers were told.' },
+          { q: 'Was Guatemala’s government really controlled by Communists?', a: 's', why: 'The reporter is passing on claims, often from officials. Party records and government files would be better evidence.' }
+        ] },
+        { t: 'An interview recorded in the 1990s with a Guatemalan farmer who received land under the 1952 reform.', qs: [
+          { q: 'What did the land reform mean to the farmers who received land?', a: 'p', why: 'He lived it. Forty years of memory shape the story, so treat it as a real but filtered view.' },
+          { q: 'Why did the US government oppose the reform?', a: 's', why: 'He was not in Washington. He knows this only from what others told him later.' }
+        ] },
+        { t: 'A history book published in 2003, after many US files were declassified, about the 1954 coup.', qs: [
+          { q: 'Why was Árbenz overthrown?', a: 's', why: 'A later interpretation, built from documents and other accounts.' },
+          { q: 'How did historians after the Cold War change the story?', a: 'p', why: 'Now the book is what you study: what it stresses shows how historians thought in 2003.' }
+        ] }
+      ],
+      match: [
+        { s: 'One historian in 1970, using newspapers and public statements, says the coup stopped communism. Another in 2003, using declassified files, shows how the CIA planned it.', a: 'e', why: 'New documents changed what could be known. What survives, and what is released, shapes the story.' },
+        { s: 'A US government statement in 1954 says Guatemala was becoming a Soviet outpost. A Guatemalan union leaflet says the coup was about protecting a fruit company.', a: 'p', why: 'Each was written to persuade its own audience and justify a side. Ask who it was for.' },
+        { s: 'One account focuses on Eisenhower, Dulles and the CIA planners. Another focuses on Maya farmers and what the land reform meant to them.', a: 'l', why: 'Same coup, a different idea of who matters. That is a lens.' },
+        { s: 'A 1955 US textbook calls the coup a victory over communism. A Guatemalan textbook from the 2010s calls it the start of decades of violence.', a: 't', why: 'The writers are in different times and places, with different knowledge of what came next.' }
+      ]
+    },
+    'Moscow': {
+      id: 'moscow',
+      infl: [['Chernobyl (TV series)', 0], ['Cold War films & games', 0]],
+      landing: { img: 'russia.jpg', alt: 'A red Soviet flag with a gold hammer, sickle and star blowing in front of the colourful onion domes of St Basil’s Cathedral in Red Square.', cap: 'A Soviet flag in front of St Basil’s Cathedral, Red Square, Moscow.', credit: '', look: 'Look for clues about when this photograph was taken. Does anything tell you it is not from 1991?', note: 'This looks like a modern digital photograph, not one from December 1991. Use that: it is a source that is not from the time. Ask students how they could tell, and what it would be primary evidence for. Add the credit.' },
+      sort: [
+        { t: 'Gorbachev’s resignation speech on television, 25 December 1991.', qs: [
+          { q: 'How did Gorbachev explain the end of the USSR, and how did he want to be remembered?', a: 'p', why: 'His own words at the moment it happened. Ask what he chose to stress, and what he left out.' },
+          { q: 'What did ordinary Soviet citizens think as they watched?', a: 's', why: 'He is speaking to them, not for them. Their own diaries and interviews would be primary.' }
+        ] },
+        { t: 'A report from Moscow in August 1991 by a foreign correspondent, about the attempted coup.', qs: [
+          { q: 'How did the foreign press report the coup to readers abroad?', a: 'p', why: 'The article is the evidence: what it says first, and what it guesses at.' },
+          { q: 'What were the coup plotters thinking in their meetings?', a: 's', why: 'The reporter was outside the room, piecing it together from what he could see and hear.' }
+        ] },
+        { t: 'A diary kept by a Moscow schoolteacher during 1991.', qs: [
+          { q: 'What was everyday life like in Moscow in 1991?', a: 'p', why: 'Written by someone living it, day by day. Still one person’s view.' },
+          { q: 'Why did the Soviet economy fail?', a: 's', why: 'She lived with the shortages but was not an economist. For this question, she is an observer, not an expert witness.' }
+        ] },
+        { t: 'A school textbook printed in Russia in 2015 with a chapter on the collapse of the USSR.', qs: [
+          { q: 'Why did the USSR collapse?', a: 's', why: 'A later account written for students, based on other people’s evidence.' },
+          { q: 'How is the collapse of the USSR taught to teenagers in Russia today?', a: 'p', why: 'Now the textbook is the evidence: its emphases show what a country wants its young people to think.' }
+        ] },
+        { t: 'A memoir published in 1995 by a former Soviet official who was in the Kremlin in 1991.', qs: [
+          { q: 'What decisions were made in the Kremlin during the August coup?', a: 'p', why: 'He was there, so this is a first-hand voice. But it is written years later, with a reputation to protect.' },
+          { q: 'How did people in the Baltic republics experience 1991?', a: 's', why: 'He was in Moscow, not Tallinn or Riga. He is telling you second-hand about people he did not see.' }
+        ] }
+      ],
+      match: [
+        { s: 'A 1992 Western book celebrates the end of the USSR as the triumph of freedom. A 2015 Russian book calls it a national catastrophe.', a: 't', why: 'Each was shaped by its time and place: Western optimism in 1992, Russia’s hard years afterwards. Historians write in their own time too.' },
+        { s: 'One historian reads Kremlin documents and stresses Gorbachev’s decisions. Another reads archives from the republics and stresses nationalist movements in Ukraine and the Baltic.', a: 'e', why: 'Different archives, different story. What you read decides what you see.' },
+        { s: 'A Soviet television bulletin during the August coup says the country is being saved from chaos. Yeltsin’s speech says it is an illegal seizure of power.', a: 'p', why: 'Each was made to win support for its own side. Ask who it was aimed at.' },
+        { s: 'One account is about Gorbachev, Yeltsin and the plotters. Another is about queues, empty shops and what ordinary families ate.', a: 'l', why: 'Same year, a different idea of what matters most. That is a lens.' }
+      ]
+    }
+  };
+  DEPS.forEach(function (d) { var x = EXTRA[d.place]; for (var k in x) d[k] = x[k]; });
+
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  /* ---------------------------------------------- ticker */
+  var TICK = DEPS.map(function (d) { return d.place + ' · ' + d.when; }).concat(['YOUR OWN · ANYWHERE']);
+  var COLS = 22;
+  var flaps = $('#flaps'), cells = [];
+  for (var i = 0; i < COLS; i++) { var c = document.createElement('div'); c.className = 'flap'; c.textContent = ' '; flaps.appendChild(c); cells.push(c); }
+  var CH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  function pad(str) { str = str.toUpperCase(); if (str.length > COLS) str = str.slice(0, COLS); while (str.length < COLS) str += ' '; return str; }
+  function flapTo(str) {
+    str = pad(str);
+    cells.forEach(function (cell, idx) {
+      var target = str.charAt(idx);
+      if (reduce || cell.textContent === target) { cell.textContent = target; return; }
+      var steps = 4 + Math.floor(Math.random() * 6) + Math.floor(idx / 3), n = 0;
+      var iv = setInterval(function () {
+        n++;
+        if (n >= steps) { cell.textContent = target; clearInterval(iv); }
+        else cell.textContent = CH.charAt(Math.floor(Math.random() * CH.length));
+      }, 45);
+    });
+  }
+  var ti = Math.floor(Math.random() * TICK.length);
+  flapTo(TICK[ti]);
+  setInterval(function () { ti = (ti + 1) % TICK.length; flapTo(TICK[ti]); }, 3600);
+
+  /* ---------------------------------------------- pass, departures, and the "your place / your year" fill */
+  var inName = $('#inName'), inPlace = $('#inPlace'), inWhen = $('#inWhen'), inWhy = $('#inWhy');
+  var wPlace = $('#wPlace'), wWhen = $('#wWhen'), wildForm = $('#wildForm');
+  var stubPlace = $('#stubPlace'), stubWhen = $('#stubWhen'), ghostNote = $('#ghostNote'), depStatus = $('#depStatus');
+  var curDep = null, wild = false, depEls = [], wildEl = null;
+
+  var depWrap = $('#deps');
+  DEPS.forEach(function (d, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'dep'; b.setAttribute('aria-pressed', 'false'); b.setAttribute('data-era', d.id);
+    b.innerHTML = '<span class="dep-top"><span>DEP ' + mm(i + 1) + '</span><span class="cont">' + d.region + '</span><span class="brd">BOARDED ✓</span></span>' +
+      '<span class="dep-body"><span class="pl">' + d.place + '</span><span class="yr">' + d.when + '</span><span class="hk">' + d.hook + '</span>' +
+      '<span class="bq"><b>The big question</b>' + d.big + '</span><span class="course">' + d.course + '</span></span>';
+    b.addEventListener('click', function () { chooseDep(i); });
+    depWrap.appendChild(b); depEls.push(b);
+  });
+  wildEl = document.createElement('button');
+  wildEl.type = 'button'; wildEl.className = 'dep wild'; wildEl.setAttribute('aria-pressed', 'false'); wildEl.setAttribute('data-era', 'bureau');
+  wildEl.innerHTML = '<span class="dep-top"><span>DEP ' + mm(DEPS.length + 1) + '</span><span class="cont">ANYWHERE</span><span class="brd">BOARDED ✓</span></span>' +
+    '<span class="dep-body"><span class="pl">Your own</span><span class="yr">Any place · any year</span><span class="hk">Not on the board? Type a real place and a real year. You will get more general tips.</span>' +
+    '<span class="bq"><b>The big question</b>Yours.</span><span class="course">Wildcard seat: the evidence guide adjusts to the year typed.</span></span>';
+  wildEl.addEventListener('click', chooseWild);
+  depWrap.appendChild(wildEl);
+
+  function chooseDep(i) {
+    curDep = DEPS[i]; wild = false;
+    inPlace.value = curDep.place; inWhen.value = curDep.when;
+    flapTo(curDep.place + ' · ' + curDep.when);
+    updateAll();
+  }
+  function chooseWild() {
+    curDep = null; wild = true;
+    inPlace.value = ''; inWhen.value = '';
+    updateAll();
+    wPlace.focus();
+  }
+
+  /* place / year helpers, used everywhere on the page */
+  function getP() { return inPlace.value.trim(); }
+  function getY() { return inWhen.value.trim(); }
+  function pyStr() { var p = getP(), y = getY(); if (p && y) return p + ' in ' + y; return p || y || 'your place and time'; }
+  function fill(str) {
+    return str.replace(/\{PY\}/g, pyStr()).replace(/\{P\}/g, getP() || 'your place').replace(/\{Y\}/g, getY() || 'your year');
+  }
+  function applyTemplates() {
+    var unset = !getP() && !getY();
+    $$('[data-tpl]').forEach(function (el) {
+      el.textContent = fill(el.getAttribute('data-tpl'));
+      el.classList.toggle('unset', unset);
+    });
+    $$('[data-search]').forEach(function (el) {
+      el.textContent = el.getAttribute('data-search').replace('{P}', getP() || 'place').replace('{Y}', getY() || 'year');
+      el.classList.toggle('unset', unset);
+    });
+    var dq = draft ? draft.value.trim() : '';
+    var qe = $('#qEcho');
+    if (qe) qe.textContent = dq ? '“' + dq + '”' : '(Write your question at Gate 3 and it will appear here.)';
+  }
+
+  function updateAll() {
+    var p = getP(), w = getY();
+    stubPlace.textContent = p || inPlace.placeholder;
+    stubWhen.textContent = w || inWhen.placeholder;
+    stubPlace.style.opacity = p ? 1 : .45; stubWhen.style.opacity = w ? 1 : .45;
+    ghostNote.style.display = (p || w || inName.value || inWhy.value || wild) ? 'none' : 'block';
+    depEls.forEach(function (el, i) { el.setAttribute('aria-pressed', curDep === DEPS[i] ? 'true' : 'false'); });
+    wildEl.setAttribute('aria-pressed', wild ? 'true' : 'false');
+    wildForm.hidden = !wild;
+    if (wild) {
+      if (document.activeElement !== wPlace) wPlace.value = inPlace.value;
+      if (document.activeElement !== wWhen) wWhen.value = inWhen.value;
+    }
+    depStatus.textContent = curDep
+      ? 'Boarded: ' + curDep.place + ', ' + curDep.when + '. Your pass is filled in. Every tip on this page now fits your trip.'
+      : (wild ? 'Your own trip. Type a real place and a year. The tips will be more general.' : '');
+    applyTemplates();
+    refreshStarters(); renderIdeas(); renderLadder(); renderAvail(); renderLinks(); renderLenses(); renderClashes();
+    syncSortMatch(); renderTrip(); renderLanding(); refreshNav(); applyEra();
+  }
+
+  /* typing by hand always means "wildcard" */
+  [inPlace, inWhen, wPlace, wWhen].forEach(function (el) {
+    el.addEventListener('input', function () {
+      if (el === wPlace) inPlace.value = wPlace.value;
+      if (el === wWhen) inWhen.value = wWhen.value;
+      curDep = null; wild = true;
+      updateAll();
+    });
+  });
+  [inName, inWhy].forEach(function (el) { el.addEventListener('input', updateAll); });
+  $('#surprise').addEventListener('click', function () {
+    chooseDep(Math.floor(Math.random() * DEPS.length));
+    $('#pass').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  /* ---------------------------------------------- gate 2 chips */
+  var INFL = [
+    ['Films & TV', 0], ['Video games', 0], ['Novels', 0], ['School lessons', 0], ['Social media', 0], ['Documentaries', 0],
+    ['Museums', 0], ['Family stories', 0], ['Memes & jokes', 0], ['Paintings & art', 0.5], ['Music', 0.5],
+    ['Old photographs', 1], ['Something written at the time', 1]
+  ];
+  var chipsEl = $('#chips'), readout = $('#readout'), picked = {};
+  function renderChips() {
+    picked = {}; chipsEl.innerHTML = '';
+    var list = INFL.slice(0, 9).concat(curDep ? curDep.infl : [], INFL.slice(9));
+    list.forEach(function (it, idx) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = it[0]; b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () {
+        var on = b.getAttribute('aria-pressed') !== 'true';
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) picked[idx] = it; else delete picked[idx];
+        drawReadout();
+      });
+      chipsEl.appendChild(b);
+    });
+    drawReadout();
+  }
+  function drawReadout() {
+    var keys = Object.keys(picked), n = keys.length;
+    if (!n) { readout.innerHTML = '<span class="big">Tap the things that shaped your picture.</span><span>I will count how many of them were made <i>at the time</i>.</span>'; return; }
+    var then = 0, maybe = 0;
+    keys.forEach(function (k) { if (picked[k][1] === 1) then++; else if (picked[k][1] === 0.5) maybe++; });
+    var head, body;
+    if (then === 0 && maybe === 0) {
+      head = n + ' picked. Made at the time: zero.';
+      body = 'Everything that shaped your picture was made later, by people with their own reasons. That is not a problem. It just means your picture is built from other people’s interpretations.';
+    } else if (then === 0) {
+      head = n + ' picked. Made at the time: probably none.';
+      body = 'Art and music can come from the time, or be made later about it. Check the date before you trust it.';
+    } else {
+      head = n + ' picked. Made at the time: ' + then + '.';
+      body = 'Nice. Those are the closest you get to the past itself, and even they were made by someone with a viewpoint. The rest is interpretation made afterwards.';
+    }
+    readout.innerHTML = '<span class="big">' + head + '</span><span>' + body + '</span>';
+  }
+
+  /* ---------------------------------------------- gate 3 forge */
+  var TOOLS = [
+    { k: 'cause', t: 'Why did it happen?', d: 'Causes and consequences', s: [
+      'Why did ______ happen in {P} in {Y}?',
+      'What was the main reason ______ in {P}?',
+      'What were the consequences of ______ for people living in {P}?'] },
+    { k: 'change', t: 'What changed, and what didn’t?', d: 'Change and continuity', s: [
+      'How much did life in {P} change between {Y} and ______?',
+      'What changed, and what stayed stubbornly the same, after ______ in {P}?',
+      'Was {Y} a turning point for {P}, or just another year?'] },
+    { k: 'persp', t: 'Who saw it differently?', d: 'Perspectives', s: [
+      'How did ______ and ______ experience {Y} in {P} differently?',
+      'Who gained and who lost from ______ in {P}?',
+      'Whose story about {P} in {Y} usually gets left out?'] },
+    { k: 'sig', t: 'Why does it matter?', d: 'Significance', s: [
+      'Why is ______ in {P} still remembered today, and by whom?',
+      'How important was ______ in shaping {P} after {Y}?',
+      'Was ______ really as significant as people say?'] }
+  ];
+  var toolsEl = $('#tools'), startersEl = $('#starters'), draft = $('#draftQ'), curTool = null;
+  TOOLS.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'tool'; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<b>' + t.t + '</b><span>' + t.d + '</span>';
+    b.addEventListener('click', function () {
+      curTool = t;
+      $$('.tool').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+      refreshStarters();
+    });
+    toolsEl.appendChild(b);
+  });
+  function refreshStarters() {
+    if (!curTool) { startersEl.innerHTML = '<p style="color:var(--muted);margin:0">Pick a thinking tool above to see starters.</p>'; return; }
+    startersEl.innerHTML = '';
+    curTool.s.forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'starter';
+      var txt = fill(s);
+      b.innerHTML = esc(txt).replace(/(_{3,})/g, '<span class="bl">$1</span>');
+      b.addEventListener('click', function () { draft.value = txt; draft.focus(); });
+      startersEl.appendChild(b);
+    });
+  }
+  draft.addEventListener('input', applyTemplates);
+  refreshStarters();
+  var CHECKS = [
+    'It has a place and a time.',
+    'I could not answer it in one sentence from memory.',
+    'Evidence must exist for it: someone wrote, made or left something behind.',
+    'Two reasonable people could answer it differently.'
+  ];
+  var checksEl = $('#checks');
+  CHECKS.forEach(function (c, i) {
+    var l = document.createElement('label'); l.className = 'check'; l.setAttribute('for', 'chk' + i);
+    l.innerHTML = '<input type="checkbox" id="chk' + i + '"><span>' + c + '</span>';
+    checksEl.appendChild(l);
+  });
+  var LEVELS = [
+    ['Not checked yet', 0, 'var(--surface-2)'],
+    ['Rung 1: a fact', 25, 'var(--signal)'],
+    ['Getting there', 50, 'var(--signal)'],
+    ['Strong', 75, 'var(--teal)'],
+    ['Ready to research!', 100, 'var(--teal)']
+  ];
+  checksEl.addEventListener('change', function () {
+    var n = $$('input:checked', checksEl).length, L = LEVELS[n];
+    $('#meterFill').style.width = L[1] + '%'; $('#meterFill').style.background = L[2];
+    $('#meterLabel').textContent = L[0];
+  });
+
+  /* ---------------------------------------------- gate 4 sorter: same source, two questions */
+  var GENERIC_SRC = [
+    { t: 'A Russian soldier’s diary, written in the trenches in 1916. One entry remembers the Tsar’s crackdown on protesters in 1905.', qs: [
+      { q: 'What was daily life like for soldiers in the trenches in 1916?', a: 'p', why: 'The diary was written there, by someone living it. It is still one man’s view, so ask what he could not see.' },
+      { q: 'What did the Tsar’s government actually do in 1905?', a: 's', why: 'Now the diarist is looking back eleven years, and probably repeating what he heard rather than what he saw. Same page, different question, different status.' }
+    ] },
+    { t: 'A newspaper article from 1925 reporting on a robbery trial.', qs: [
+      { q: 'What really happened during the robbery?', a: 's', why: 'The reporter is passing on what police, witnesses and lawyers said. That makes it a second-hand report about the crime.' },
+      { q: 'How did this newspaper and its editors treat crime and poverty in 1925?', a: 'p', why: 'Now the article itself is the evidence. Its headline, tone and choices show what the paper wanted readers to think.' }
+    ] },
+    { t: 'A film released in 2019 about Victorian London.', qs: [
+      { q: 'What was life like in Victorian London?', a: 's', why: 'A later interpretation, made by people who were not there.' },
+      { q: 'How did people in the 2010s imagine the Victorians?', a: 'p', why: 'Now the film is what you are studying. It comes straight from the 2010s and shows their ideas.' }
+    ] },
+    { t: 'A school textbook printed in 1985, with a chapter on the causes of the First World War.', qs: [
+      { q: 'Why did the First World War start?', a: 's', why: 'It is a later summary, written by someone who was not there, based on other people’s evidence.' },
+      { q: 'How were teenagers in the 1980s taught about the war?', a: 'p', why: 'Now the textbook is the evidence: what it includes, what it leaves out, and what it wants students to believe.' }
+    ] },
+    { t: 'A memoir published in 1990 by a government minister who helped manage a crisis in 1962.', qs: [
+      { q: 'Why did the government make the decisions it did during the crisis?', a: 'p', why: 'He was in the room, so this is a first-hand voice. But it comes 28 years later, with hindsight and a reputation to protect. Primary does not mean reliable.' },
+      { q: 'How did ordinary citizens experience the crisis?', a: 's', why: 'He was not living their lives. He is telling you second-hand about people he did not see. For this question, look for their own diaries and letters.' }
+    ] }
+  ];
+  var LBL = { p: 'Primary', s: 'Secondary' };
+  var si = 0, score = 0, stage = $('#sortStage');
+  function curSrc() { return curDep ? curDep.sort : GENERIC_SRC; }
+  function drawSort() {
+    var SRC = curSrc(), SORT_TOTAL = SRC.length * 2;
+    if (si >= SRC.length) {
+      var msg = score >= 9 ? 'Sharp. You can see that the question decides.' : score >= 6 ? 'Solid. The tricky ones are the point: the same source changes status when the question changes.' : 'Good start. The key idea: primary or secondary depends on the question you are asking.';
+      stage.innerHTML = '<div class="fb good"><b>' + score + ' of ' + SORT_TOTAL + ' matched.</b>' + msg + '</div>' +
+        '<div class="rule" style="margin-top:14px"><span>Two things to remember</span>Primary does not mean true. Secondary does not mean useless. Both still get the three detective questions.</div>' +
+        '<div style="margin-top:12px"><button type="button" class="btn" id="sortAgain">Try again</button></div>';
+      $('#sortAgain').addEventListener('click', function () { si = 0; score = 0; drawSort(); });
+      return;
+    }
+    var c = SRC[si], answered = 0;
+    var blocks = c.qs.map(function (qq, qi) {
+      return '<div class="q-block" data-qi="' + qi + '"><div class="qq"><small>Question ' + (qi === 0 ? 'A' : 'B') + '</small>' + qq.q + '</div>' +
+        '<div class="q-btns"><button type="button" class="btn" data-a="p">Primary</button><button type="button" class="btn" data-a="s">Secondary</button></div>' +
+        '<div class="q-why" aria-live="polite"></div></div>';
+    }).join('');
+    stage.innerHTML = '<div class="sort-meta"><span>SOURCE ' + (si + 1) + ' OF ' + SRC.length + '</span><span>MATCHED: ' + score + '</span></div>' +
+      '<div class="card-src">' + c.t + '</div>' + blocks + '<div id="sortNextWrap"></div>';
+    $$('.q-block', stage).forEach(function (blk) {
+      var qq = c.qs[parseInt(blk.getAttribute('data-qi'), 10)];
+      $$('.q-btns .btn', blk).forEach(function (b) {
+        b.addEventListener('click', function () {
+          var ok = b.getAttribute('data-a') === qq.a;
+          if (ok) score++;
+          answered++;
+          $$('.q-btns .btn', blk).forEach(function (x) {
+            x.disabled = true;
+            if (x.getAttribute('data-a') === qq.a) x.classList.add('right');
+            else if (x === b) x.classList.add('wrong');
+          });
+          $('.q-why', blk).innerHTML = '<b>' + (ok ? 'Yes: ' : 'Not quite: ') + LBL[qq.a] + ' for this question.</b> ' + qq.why;
+          if (answered === c.qs.length) {
+            $('#sortNextWrap').innerHTML = '<div style="margin-top:14px"><button type="button" class="btn primary" id="sortNext">' + (si === SRC.length - 1 ? 'See result' : 'Next source') + '</button></div>';
+            $('#sortNext').addEventListener('click', function () { si++; drawSort(); });
+            $('#sortNext').focus();
+          }
+        });
+      });
+    });
+  }
+  drawSort();
+
+  /* ---------------------------------------------- gate 5 lenses */
+  var LENSES = [
+    { n: 'Big Names', tg: 'Kings, presidents, generals, geniuses', find: 'Try searching: ruler, battle, treaty, government', shows: 'Dates, decisions and turning points. It is the easiest history to find.', hides: 'Most people never appear. Whole populations are reduced to “the people”.' },
+    { n: 'Everyday Life', tg: 'Workers, children, women, servants, farmers', find: 'Try: daily life, diary, letters, household, wages', shows: 'What it actually felt like to live there.', hides: 'Fewer records survive. Some voices were never written down at all.' },
+    { n: 'Money & Class', tg: 'Who owned, who worked, who paid', find: 'Try: trade, tax, poverty, guilds, prices', shows: 'Why people acted as they did, and who benefited.', hides: 'Can squeeze beliefs, art and identity into “just money”.' },
+    { n: 'Ideas & Culture', tg: 'Religion, art, music, science, beliefs', find: 'Try: religion, art, festival, philosophy, music', shows: 'What people thought made life meaningful.', hides: 'The culture we can see is often the culture of the wealthy and literate.' },
+    { n: 'Power & Rules', tg: 'Laws, borders, empires, who obeyed whom', find: 'Try: law, empire, rebellion, resistance, police', shows: 'Who had power, who resisted, and how control worked.', hides: 'Can make everything look like structures, with no people in it.' },
+    { n: 'Outsiders’ Eyes', tg: 'Visitors, the conquered, rivals, the defeated', find: 'Try: traveller’s account, ambassador, enslaved, colonised', shows: 'A view you do not get from the winners.', hides: 'Outsiders misread things, and often had their own agenda.' }
+  ];
+  var lensWrap = $('#lenses'), lensEls = [];
+  LENSES.forEach(function (L, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'lens'; b.setAttribute('aria-expanded', 'false');
+    b.innerHTML = '<span class="nm">' + L.n.replace('&', '&amp;') + '</span><span class="tg">' + L.tg + '</span>' +
+      '<span class="more"><b>Search for</b>' + L.find + '<b>What it shows</b>' + L.shows + '<b>What it hides</b>' + L.hides + '<span class="deprow" style="display:none"><b class="depb"></b><span class="depx"></span></span></span>';
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', open ? 'false' : 'true');
+      b.classList.remove('spun');
+    });
+    lensWrap.appendChild(b); lensEls.push(b);
+  });
+  $('#spin').addEventListener('click', function () {
+    var idx = Math.floor(Math.random() * LENSES.length);
+    lensEls.forEach(function (el) { el.classList.remove('spun'); });
+    lensEls[idx].classList.add('spun'); lensEls[idx].setAttribute('aria-expanded', 'true');
+    $('#spinOut').textContent = 'Your lens: ' + LENSES[idx].n;
+    lensEls[idx].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  /* ---------------------------------------------- gate 6 matcher */
+  var REASONS = { e: 'Different evidence', l: 'Different lens', t: 'Different time', p: 'Different purpose' };
+  var GENERIC_SCN = [
+    { s: 'A 1950s school textbook calls an empire “a civilising force”. A 2010s book calls it “a system of exploitation”.', a: 't', why: 'Each writer’s world shaped what they saw as normal, fair or worth saying. Historians write in their own time too.' },
+    { s: 'One historian uses tax records and finds most families were getting poorer. Another uses letters from wealthy families and finds everyone doing well.', a: 'e', why: 'Which records survive, and which ones you choose, can change the whole story.' },
+    { s: 'A government pamphlet calls a protest “a riot”. A protester’s diary calls it “a peaceful march”.', a: 'p', why: 'One was written to persuade, the other to record. Ask: what did the author want the reader to do?' },
+    { s: 'One book focuses on the general’s decisions. Another is about what the soldiers ate, feared and hoped.', a: 'l', why: 'Same war, different idea of what matters most. That is a lens.' }
+  ];
+  var matcher = $('#matcher');
+  function renderMatcher() {
+    matcher.innerHTML = '';
+    (curDep ? curDep.match : GENERIC_SCN).forEach(function (sc) {
+      var d = document.createElement('div'); d.className = 'scn';
+      var opts = Object.keys(REASONS).map(function (k) { return '<button type="button" class="opt" data-k="' + k + '">' + REASONS[k] + '</button>'; }).join('');
+      d.innerHTML = '<p class="s">' + sc.s + '</p><div class="opts">' + opts + '</div><div class="why" aria-live="polite"></div>';
+      $$('.opt', d).forEach(function (o) {
+        o.addEventListener('click', function () {
+          var k = o.getAttribute('data-k');
+          var ok = k === sc.a;
+          $$('.opt', d).forEach(function (x) { if (x.getAttribute('data-k') === sc.a) x.classList.add('right'); });
+          if (!ok) o.classList.add('wrong');
+          d.classList.add('done');
+          $('.why', d).innerHTML = '<b>' + (ok ? 'Yes. ' : 'Best answer: ' + REASONS[sc.a] + '. ') + '</b>' + sc.why + (ok ? '' : ' Often more than one applies.');
+        });
+      });
+      matcher.appendChild(d);
+    });
+  }
+
+  /* ---------------------------------------------- things that change with the destination */
+  var LADDER_DEFAULT = ['When did the Bastille fall?', 'What was Paris like in 1789?', 'Why did ordinary Parisians turn on the king in 1789?', 'Who gained the most from the fall of the Bastille, and who lost?'];
+  function renderLadder() {
+    var q = curDep ? curDep.ladder : LADDER_DEFAULT;
+    for (var i = 0; i < 4; i++) $('#rq' + (i + 1)).textContent = q[i];
+    $('#ladderTitle').textContent = curDep
+      ? 'Here is one for ' + curDep.place + ' in ' + curDep.when + '. Aim for rung 3 or 4.'
+      : 'Here is one for Paris in 1789. Aim for rung 3 or 4.';
+  }
+
+  var ideasWrap = $('#ideas'), ideaChips = $('#ideaChips');
+  function renderIdeas() {
+    ideaChips.innerHTML = '';
+    if (!curDep) { ideasWrap.hidden = true; return; }
+    ideasWrap.hidden = false;
+    curDep.ideas.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip sm'; b.textContent = t;
+      b.addEventListener('click', function () {
+        var v = draft.value;
+        if (/_{3,}/.test(v)) draft.value = v.replace(/_{3,}/, t);
+        else draft.value = (v ? v + ' ' : '') + t;
+        draft.focus(); applyTemplates();
+      });
+      ideaChips.appendChild(b);
+    });
+  }
+
+  /* a rough guide to the evidence for any year, used for wildcard trips */
+  function parseYear(s) {
+    if (!s) return null;
+    var m = /(\d{1,2})(?:st|nd|rd|th)\s*century/i.exec(s);
+    if (m) return (parseInt(m[1], 10) - 1) * 100 + 50;
+    m = /(\d{1,4})\s*(?:bce|bc|b\.c\.e?\.?)/i.exec(s);
+    if (m) return -parseInt(m[1], 10);
+    m = /(\d{1,4})/.exec(s);
+    return m ? parseInt(m[1], 10) : null;
+  }
+  function eraGuide(y) {
+    if (y < 500) return {
+      yes: ['Objects, coins, inscriptions, buildings and archaeology', 'Texts by a few educated (mostly elite, mostly male) writers, often copied out centuries later', 'Museum collections and excavation reports'],
+      hard: ['Ordinary people’s own words: almost nobody wrote about daily life', 'Original documents: many texts survive only as later copies', 'Anything that decayed, such as wood, cloth and paper']
+    };
+    if (y < 1500) return {
+      yes: ['Chronicles and letters by monks, scribes and court officials', 'Religious texts, laws and charters', 'Buildings, coins, art and other objects', 'Accounts by travellers'],
+      hard: ['Ordinary people, women and the poor', 'Places where knowledge was passed on by speaking, and only written down later', 'A neutral voice: chroniclers usually served a ruler or a church']
+    };
+    if (y < 1800) return {
+      yes: ['Printed books, pamphlets and maps', 'Paintings and prints', 'Government, church and trade records', 'Letters and diaries of people who could write', 'Travellers’ accounts'],
+      hard: ['Most ordinary people could not write, so their voices are thin', 'Enslaved and colonised people’s own words: many records were written by those in charge', 'Photographs do not exist yet']
+    };
+    if (y < 1900) return {
+      yes: ['Newspapers and illustrated magazines', 'Photographs (from the 1840s, and often posed)', 'Census, tax and court records', 'Letters, diaries and memoirs', 'Maps and government reports'],
+      hard: ['The poorest, and people who could not write', 'Colonised peoples’ own voices: much was written by outsiders', 'Candid photographs: cameras were slow, so pictures were often posed']
+    };
+    if (y < 1945) return {
+      yes: ['Newspapers, magazines and posters', 'Photographs and film footage', 'Radio recordings and speeches', 'Memoirs, letters and diaries', 'Government files, many now digitised'],
+      hard: ['Truth: propaganda and censorship shaped much of what was made', 'Groups nobody bothered to record', 'Files that are still closed or were destroyed']
+    };
+    return {
+      yes: ['Film, television and audio', 'Photographs and newspapers', 'Oral histories from people still alive', 'Declassified government files (often released after 30 years or so)', 'Websites and online archives'],
+      hard: ['Recent government files: many are still secret', 'Sorting the useful from the flood: there is so much', 'Truth: propaganda and spin are everywhere, and social media adds more']
+    };
+  }
+  function renderAvail() {
+    var g = null, note;
+    if (curDep) {
+      g = { yes: curDep.yes, hard: curDep.hard };
+      note = 'Written for your departure. These are good bets, not promises: check them on your iPad.';
+    } else {
+      var yr = parseYear(getY());
+      if (yr !== null) {
+        g = eraGuide(yr);
+        note = 'A rough guide based on the year you typed. Where you are going matters too, so treat this as a guess and test it.';
+      } else {
+        note = 'Board a departure at Gate 1, or type a year on your boarding pass, and this list will change to fit.';
+      }
+    }
+    $('#availNote').textContent = note;
+    $('#availGrid').hidden = !g;
+    if (g) {
+      $('#availYes').innerHTML = g.yes.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+      $('#availNo').innerHTML = g.hard.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    }
+  }
+
+  function linkHTML(l) {
+    return '<a href="' + l[2] + '" target="_blank" rel="noopener"><b>' + esc(l[0]) + '</b><span>' + esc(l[1]) + '</span></a>';
+  }
+  function renderLinks() {
+    var box = $('#linksBox'), also = $('#alsoBox');
+    if (curDep) {
+      $('#linksTitle').textContent = 'Good places to start for ' + curDep.place;
+      box.innerHTML = curDep.links.map(linkHTML).join('');
+      var used = curDep.links.map(function (l) { return l[2]; });
+      var rest = GENERIC_LINKS.filter(function (l) { return used.indexOf(l[2]) < 0; });
+      also.hidden = false;
+      also.innerHTML = 'Also try: ' + rest.map(function (l) { return '<a href="' + l[2] + '" target="_blank" rel="noopener">' + esc(l[0]) + '</a>'; }).join(' ');
+    } else {
+      $('#linksTitle').textContent = 'Good places to start';
+      box.innerHTML = GENERIC_LINKS.map(linkHTML).join('');
+      also.hidden = true;
+    }
+  }
+
+  function renderLenses() {
+    lensEls.forEach(function (b, i) {
+      var row = $('.deprow', b);
+      if (curDep) {
+        row.style.display = 'block';
+        $('.depb', row).textContent = 'For ' + curDep.place + ' ' + curDep.when;
+        $('.depx', row).textContent = curDep.lens[i];
+      } else row.style.display = 'none';
+    });
+  }
+
+  function renderClashes() {
+    var items = (curDep ? curDep.clash : GENERIC_CLASHES).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    $('#clashBox').innerHTML = '<p style="margin:0 0 8px"><b>' + (curDep ? 'Still stuck? Real arguments about ' + esc(curDep.place) + ':' : 'Still stuck? Borrow a famous clash:') + '</b></p><ul class="plain-list">' + items + '</ul>';
+  }
+
+  /* ---------------------------------------------- trip bar, landing postcard, intros */
+  var lastEra = '';
+  function applyEra() {
+    var era = curDep ? curDep.id : '';
+    if (era === lastEra) return;
+    lastEra = era;
+    if (era) document.body.setAttribute('data-era', era); else document.body.removeAttribute('data-era');
+    var w = $('#warp');
+    if (w && !reduce) { w.classList.remove('go'); void w.offsetWidth; w.classList.add('go'); }
+  }
+  var lastKey = null, lastLand = null;
+  function renderTrip() {
+    var bar = $('#tripBar'), p = getP(), y = getY();
+    if (!p && !y) { bar.hidden = true; return; }
+    bar.hidden = false;
+    $('#tbPlace').textContent = p || 'somewhere';
+    $('#tbWhen').textContent = y ? '· ' + y : '';
+    var yr = parseYear(y), now = new Date().getFullYear();
+    $('#tbAway').textContent = (yr !== null && yr < now) ? (now - yr).toLocaleString('en') + ' YEARS FROM HOME' : '';
+  }
+  function landFallback(box, p, y) {
+    box.innerHTML = '<div class="pc-fallback"><span class="big">' + esc(p || 'Your place') + '</span><span class="yr">' + esc(y || 'your year') + '</span><small>ARRIVALS</small>' +
+      '<span class="pc-teacher">Teacher: save a photo as images/' + (curDep ? curDep.id : 'your-place') + '.jpg and set landing.img for this destination in the EXTRA list.</span></div>';
+  }
+  function renderLanding() {
+    var p = getP(), y = getY(), L = curDep && curDep.landing;
+    $('#pcPlace').textContent = (p || 'your place').toUpperCase();
+    $('#pcYear').textContent = y || '----';
+    var key = [p, y, L && L.img].join('|');
+    if (key === lastLand) return;
+    lastLand = key;
+    var box = $('#pcImg');
+    if (L && L.img) {
+      box.innerHTML = '<img src="' + esc(L.img) + '" alt="' + esc(L.alt || '') + '">';
+      $('img', box).addEventListener('error', function () { landFallback(box, p, y); });
+    } else landFallback(box, p, y);
+    $('#pcCap').textContent = L && L.cap ? L.cap + (L.credit ? ' (' + L.credit + ')' : '') : '';
+    var lk = $('#pcLook'); lk.hidden = !(L && L.look); lk.textContent = L && L.look ? L.look : '';
+    $('#pcNote').innerHTML = L && L.note ? '<h4>Teacher · about this picture</h4>' + esc(L.note) : '';
+  }
+  function syncSortMatch() {
+    var key = curDep ? curDep.place : 'generic';
+    if (key !== lastKey) { lastKey = key; si = 0; score = 0; drawSort(); renderMatcher(); renderChips(); }
+    var here = '<span class="ph">' + esc(pyStr()) + '</span>';
+    $('#sortIntro').innerHTML = curDep
+      ? 'You are in the archive at ' + here + '. Five sources turn up. For each question, decide whether the source is primary or secondary.'
+      : 'Five sources turn up. For each question, decide whether the source is primary or secondary.';
+    $('#matchIntro').innerHTML = (curDep
+      ? 'Four imagined clashes about ' + here + '. '
+      : 'Four clashes from other times and places. ') + 'Why do these pairs clash? Pick the <i>best</i> reason. Often it is more than one.';
+  }
+
+  /* ---------------------------------------------- reveal */
+  var revealBtn = $('#revealBtn'), revealBox = $('#revealBox');
+  revealBtn.addEventListener('click', function () {
+    var open = revealBox.hidden;
+    revealBox.hidden = !open;
+    revealBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    revealBtn.textContent = open ? 'Hide' : 'Show me what I just did';
+    if (open) revealBox.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  });
+
+  /* ---------------------------------------------- teacher view */
+  var teacherBtn = $('#teacherBtn');
+  function setTeacher(on) {
+    teacherOn = on;
+    document.body.classList.toggle('teacher', on);
+    drawNavState(); refreshNav();
+    teacherBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    teacherBtn.textContent = on ? 'Hide teacher view' : 'Teacher view';
+  }
+  teacherBtn.addEventListener('click', function () { setTeacher(!document.body.classList.contains('teacher')); });
+  if (location.hash === '#teacher') setTeacher(true);
+  window.addEventListener('hashchange', function () { setTeacher(location.hash === '#teacher'); });
+
+  showStep(-1);
+  updateAll();
+})();
+</script>
